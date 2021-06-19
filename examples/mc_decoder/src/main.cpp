@@ -16,13 +16,13 @@ using namespace aff3ct;
 struct params
 {
 	size_t n_threads = std::thread::hardware_concurrency();
-	float  ebn0_min  =  0.00f; // minimum SNR value
-	float  ebn0_max  = 10.01f; // maximum SNR value
+	float  ebn0_min  =  3.00f; // minimum SNR value
+	float  ebn0_max  =  3.01f; // maximum SNR value
 	float  ebn0_step =  1.00f; // SNR step
 	float  R;                  // code rate (R=K/N)
 
 	std::unique_ptr<factory::Source          > source;
-	std::unique_ptr<factory::Codec_repetition> codec;
+	std::unique_ptr<factory::Codec_polar     > codec;
 	std::unique_ptr<factory::Modem           > modem;
 	std::unique_ptr<factory::Channel         > channel;
 	std::unique_ptr<factory::Monitor_BFER    > monitor;
@@ -146,7 +146,7 @@ int main(int argc, char** argv)
 void init_params(int argc, char** argv, params &p)
 {
 	p.source   = std::unique_ptr<factory::Source          >(new factory::Source          ());
-	p.codec    = std::unique_ptr<factory::Codec_repetition>(new factory::Codec_repetition());
+	p.codec    = std::unique_ptr<factory::Codec_polar     >(new factory::Codec_polar     ());
 	p.modem    = std::unique_ptr<factory::Modem           >(new factory::Modem           ());
 	p.channel  = std::unique_ptr<factory::Channel         >(new factory::Channel         ());
 	p.monitor  = std::unique_ptr<factory::Monitor_BFER    >(new factory::Monitor_BFER    ());
