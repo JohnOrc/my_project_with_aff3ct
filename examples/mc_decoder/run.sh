@@ -1,0 +1,1 @@
+./build/bin/main -D SCL -K 128 -N 256

@@ -17,9 +17,10 @@ Compile the code on Linux/MacOS/MinGW:
 The source code of this mini project is in `src/main.cpp`.
 The compiled binary is in `build/bin/my_project`.
 
-Set run.sh permission
+Then cd directory `../build`. Set run.sh permission
 
-    $ chmod +755 ./bin/run.sh
+    $ chmod +755 ./run.sh
 
 Run and debug
-    $ ./bin/run.sh
+
+    $ ./run.sh
