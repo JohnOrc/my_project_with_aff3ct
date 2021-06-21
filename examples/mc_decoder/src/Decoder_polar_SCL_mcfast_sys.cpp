@@ -1,25 +1,4 @@
-#ifndef _USE_MATH_DEFINES
-#define _USE_MATH_DEFINES
-#endif
-#include <algorithm>
-#include <sstream>
-#include <numeric>
-#include <string>
-#include <limits>
-#include <cmath>
-
-#include "Tools/Exception/exception.hpp"
-#include "Tools/Math/utils.h"
-#include "Tools/Code/Polar/Patterns/Pattern_polar_r0.hpp"
-#include "Tools/Code/Polar/Patterns/Pattern_polar_r0_left.hpp"
-#include "Tools/Code/Polar/Patterns/Pattern_polar_r1.hpp"
-#include "Tools/Code/Polar/Patterns/Pattern_polar_rep.hpp"
-#include "Tools/Code/Polar/Patterns/Pattern_polar_rep_left.hpp"
-#include "Tools/Code/Polar/Patterns/Pattern_polar_spc.hpp"
-#include "Tools/Code/Polar/Patterns/Pattern_polar_std.hpp"
-#include "Tools/Code/Polar/Pattern_polar_parser.hpp"
-#include "Tools/Code/Polar/fb_extract.h"
-#include "Tools/Code/Polar/fb_assert.h"
+#include <aff3ct.hpp>
 
 #include "Decoder_polar_SCL_mcfast_sys.hpp"
 
@@ -27,16 +6,17 @@ namespace aff3ct
 {
 namespace module
 {
-template <typename R> inline R           sat_m(const R           m) { return                              m           ; }
-template <          > inline signed char sat_m(const signed char m) { return tools::saturate<signed char>(m, -128, 63); }
+
+template <typename R> inline R           sat_m_mc(const R           m) { return                              m           ; }
+template <          > inline signed char sat_m_mc(const signed char m) { return tools::saturate<signed char>(m, -128, 63); }
 
 template <typename R>
-inline void normalize_scl_metrics(std::vector<R> &metrics, const int L)
+inline void normalize_scl_metrics_mc(std::vector<R> &metrics, const int L)
 {
 }
 
 template <>
-inline void normalize_scl_metrics(std::vector<short> &metrics, const int L)
+inline void normalize_scl_metrics_mc(std::vector<short> &metrics, const int L)
 {
 	auto min = *std::min_element(metrics.begin(), metrics.begin() + L);
 
@@ -47,7 +27,7 @@ inline void normalize_scl_metrics(std::vector<short> &metrics, const int L)
 }
 
 template <>
-inline void normalize_scl_metrics(std::vector<signed char> &metrics, const int L)
+inline void normalize_scl_metrics_mc(std::vector<signed char> &metrics, const int L)
 {
 	auto min = *std::min_element(metrics.begin(), metrics.begin() + L);
 
@@ -56,6 +36,7 @@ inline void normalize_scl_metrics(std::vector<signed char> &metrics, const int L
 	for (auto i = 0; i < L; i++)
 		metrics[i] += norm;
 }
+
 
 template <typename B, typename R, class API_polar>
 Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
@@ -357,7 +338,7 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 	                                 (node_type == tools::polar_node_t::SPC);
 
 	// root node
-	std::cout << "it's a test and it works" << endl;
+	std::cout << "it's a test and it works" << std::endl;
 	
 	if (rev_depth == m)
 	{
@@ -534,7 +515,7 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 				break;
 		}
 
-		normalize_scl_metrics<R>(this->metrics, this->L);
+		normalize_scl_metrics_mc<R>(this->metrics, this->L);
 	}
 }
 
@@ -564,8 +545,8 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 
 			auto pen = (R)0;
 			for (auto j = 0; j < n_elmts; j++)
-				pen = sat_m<R>(pen + sat_m<R>(-std::min((R)l[array][off_l +j], (R)0)));
-			metrics[path] = sat_m<R>(metrics[path] + pen); // add a penalty to the current path metric
+				pen = sat_m_mc<R>(pen + sat_m_mc<R>(-std::min((R)l[array][off_l +j], (R)0)));
+			metrics[path] = sat_m_mc<R>(metrics[path] + pen); // add a penalty to the current path metric
 		}
 
 //	if (!polar_patterns.exist_node_type(polar_node_t::RATE_0_LEFT, r_d +1))
@@ -586,8 +567,8 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 
 			auto pen = (R)0;
 			for (auto j = 0; j < N_ELMTS; j++)
-				pen = sat_m<R>(pen + sat_m<R>(-std::min((R)l[array][off_l +j], (R)0)));
-			metrics[path] = sat_m<R>(metrics[path] + pen); // add a penalty to the current path metric
+				pen = sat_m_mc<R>(pen + sat_m_mc<R>(-std::min((R)l[array][off_l +j], (R)0)));
+			metrics[path] = sat_m_mc<R>(metrics[path] + pen); // add a penalty to the current path metric
 		}
 
 //	if (!polar_patterns.exist_node_type(polar_node_t::RATE_0_LEFT, REV_D +1))
@@ -614,13 +595,13 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 				bit_flips[2 * path +0] = 0;
 				bit_flips[2 * path +1] = 1;
 
-				const auto pen0 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path +0]]));
-				const auto pen1 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path +1]]));
+				const auto pen0 = sat_m_mc<R>(std::abs(l[array][off_l + bit_flips[2 * path +0]]));
+				const auto pen1 = sat_m_mc<R>(std::abs(l[array][off_l + bit_flips[2 * path +1]]));
 
 				metrics_vec[1][4 * path +0] =          metrics       [    path   ];
-				metrics_vec[1][4 * path +1] = sat_m<R>(metrics       [    path   ] + pen0);
-				metrics_vec[1][4 * path +2] = sat_m<R>(metrics       [    path   ] + pen1);
-				metrics_vec[1][4 * path +3] = sat_m<R>(metrics_vec[1][4 * path +1] + pen1);
+				metrics_vec[1][4 * path +1] = sat_m_mc<R>(metrics       [    path   ] + pen0);
+				metrics_vec[1][4 * path +2] = sat_m_mc<R>(metrics       [    path   ] + pen1);
+				metrics_vec[1][4 * path +3] = sat_m_mc<R>(metrics_vec[1][4 * path +1] + pen1);
 			}
 		}
 		else
@@ -637,13 +618,13 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 				bit_flips[2 * path +0] = best_idx[0];
 				bit_flips[2 * path +1] = best_idx[1];
 
-				const auto pen0 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path +0]]));
-				const auto pen1 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path +1]]));
+				const auto pen0 = sat_m_mc<R>(std::abs(l[array][off_l + bit_flips[2 * path +0]]));
+				const auto pen1 = sat_m_mc<R>(std::abs(l[array][off_l + bit_flips[2 * path +1]]));
 
 				metrics_vec[1][4 * path +0] =          metrics       [    path   ];
-				metrics_vec[1][4 * path +1] = sat_m<R>(metrics       [    path   ] + pen0);
-				metrics_vec[1][4 * path +2] = sat_m<R>(metrics       [    path   ] + pen1);
-				metrics_vec[1][4 * path +3] = sat_m<R>(metrics_vec[1][4 * path +1] + pen1);
+				metrics_vec[1][4 * path +1] = sat_m_mc<R>(metrics       [    path   ] + pen0);
+				metrics_vec[1][4 * path +2] = sat_m_mc<R>(metrics       [    path   ] + pen1);
+				metrics_vec[1][4 * path +3] = sat_m_mc<R>(metrics_vec[1][4 * path +1] + pen1);
 			}
 		}
 		for (auto i = n_active_paths; i < L; i++)
@@ -698,13 +679,13 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 				bit_flips[2 * path +0] = 0;
 				bit_flips[2 * path +1] = 1;
 
-				const auto pen0 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path +0]]));
-				const auto pen1 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path +1]]));
+				const auto pen0 = sat_m_mc<R>(std::abs(l[array][off_l + bit_flips[2 * path +0]]));
+				const auto pen1 = sat_m_mc<R>(std::abs(l[array][off_l + bit_flips[2 * path +1]]));
 
 				metrics_vec[1][4 * path +0] =          metrics       [    path   ];
-				metrics_vec[1][4 * path +1] = sat_m<R>(metrics       [    path   ] + pen0);
-				metrics_vec[1][4 * path +2] = sat_m<R>(metrics       [    path   ] + pen1);
-				metrics_vec[1][4 * path +3] = sat_m<R>(metrics_vec[1][4 * path +1] + pen1);
+				metrics_vec[1][4 * path +1] = sat_m_mc<R>(metrics       [    path   ] + pen0);
+				metrics_vec[1][4 * path +2] = sat_m_mc<R>(metrics       [    path   ] + pen1);
+				metrics_vec[1][4 * path +3] = sat_m_mc<R>(metrics_vec[1][4 * path +1] + pen1);
 			}
 		}
 		else
@@ -721,13 +702,13 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 				bit_flips[2 * path +0] = best_idx[0];
 				bit_flips[2 * path +1] = best_idx[1];
 
-				const auto pen0 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path +0]]));
-				const auto pen1 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path +1]]));
+				const auto pen0 = sat_m_mc<R>(std::abs(l[array][off_l + bit_flips[2 * path +0]]));
+				const auto pen1 = sat_m_mc<R>(std::abs(l[array][off_l + bit_flips[2 * path +1]]));
 
 				metrics_vec[1][4 * path +0] =          metrics       [    path   ];
-				metrics_vec[1][4 * path +1] = sat_m<R>(metrics       [    path   ] + pen0);
-				metrics_vec[1][4 * path +2] = sat_m<R>(metrics       [    path   ] + pen1);
-				metrics_vec[1][4 * path +3] = sat_m<R>(metrics_vec[1][4 * path +1] + pen1);
+				metrics_vec[1][4 * path +1] = sat_m_mc<R>(metrics       [    path   ] + pen0);
+				metrics_vec[1][4 * path +2] = sat_m_mc<R>(metrics       [    path   ] + pen1);
+				metrics_vec[1][4 * path +3] = sat_m_mc<R>(metrics_vec[1][4 * path +1] + pen1);
 			}
 		}
 		for (auto i = n_active_paths; i < L; i++)
@@ -805,11 +786,11 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 		auto pen1 = (R)0;
 		for (auto j = 0; j < n_elmts; j++)
 		{
-			pen0 = sat_m<R>(pen0 + sat_m<R>(-std::min(l[array][off_l +j], (R)0)));
-			pen1 = sat_m<R>(pen1 + sat_m<R>(+std::max(l[array][off_l +j], (R)0)));
+			pen0 = sat_m_mc<R>(pen0 + sat_m_mc<R>(-std::min(l[array][off_l +j], (R)0)));
+			pen1 = sat_m_mc<R>(pen1 + sat_m_mc<R>(+std::max(l[array][off_l +j], (R)0)));
 		}
-		metrics_vec[0][2 * path +0] = sat_m<R>(metrics[path] + pen0);
-		metrics_vec[0][2 * path +1] = sat_m<R>(metrics[path] + pen1);
+		metrics_vec[0][2 * path +0] = sat_m_mc<R>(metrics[path] + pen0);
+		metrics_vec[0][2 * path +1] = sat_m_mc<R>(metrics[path] + pen1);
 	}
 
 	if (n_active_paths <= L / 2)
@@ -881,11 +862,11 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 		auto pen1 = (R)0;
 		for (auto j = 0; j < N_ELMTS; j++)
 		{
-			pen0 = sat_m<R>(pen0 + sat_m<R>(-std::min(l[array][off_l +j], (R)0)));
-			pen1 = sat_m<R>(pen1 + sat_m<R>(+std::max(l[array][off_l +j], (R)0)));
+			pen0 = sat_m_mc<R>(pen0 + sat_m_mc<R>(-std::min(l[array][off_l +j], (R)0)));
+			pen1 = sat_m_mc<R>(pen1 + sat_m_mc<R>(+std::max(l[array][off_l +j], (R)0)));
 		}
-		metrics_vec[0][2 * path +0] = sat_m<R>(metrics[path] + pen0);
-		metrics_vec[0][2 * path +1] = sat_m<R>(metrics[path] + pen1);
+		metrics_vec[0][2 * path +0] = sat_m_mc<R>(metrics[path] + pen0);
+		metrics_vec[0][2 * path +1] = sat_m_mc<R>(metrics[path] + pen1);
 	}
 
 	if (n_active_paths <= L / 2)
@@ -963,22 +944,22 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 				sum ^= (l[array][off_l +j] < 0);
 			is_even[path] = (sum == 0);
 
-			const auto pen0 = sat_m<R>(std::abs(l[array][off_l + bit_flips[4 * path +0]]));
-			const auto pen1 = sat_m<R>(std::abs(l[array][off_l + bit_flips[4 * path +1]]));
-			const auto pen2 = sat_m<R>(std::abs(l[array][off_l + bit_flips[4 * path +2]]));
-			const auto pen3 = sat_m<R>(std::abs(l[array][off_l + bit_flips[4 * path +3]]));
+			const auto pen0 = sat_m_mc<R>(std::abs(l[array][off_l + bit_flips[4 * path +0]]));
+			const auto pen1 = sat_m_mc<R>(std::abs(l[array][off_l + bit_flips[4 * path +1]]));
+			const auto pen2 = sat_m_mc<R>(std::abs(l[array][off_l + bit_flips[4 * path +2]]));
+			const auto pen3 = sat_m_mc<R>(std::abs(l[array][off_l + bit_flips[4 * path +3]]));
 
-			metrics_vec[2][n_cands * path +0] =          sat_m<R>(metrics[path] + (!is_even[path] ? pen0 : 0));
-			metrics_vec[2][n_cands * path +1] = sat_m<R>(sat_m<R>(metrics[path] + ( is_even[path] ? pen0 : 0)) + pen1);
-			metrics_vec[2][n_cands * path +2] = sat_m<R>(sat_m<R>(metrics[path] + ( is_even[path] ? pen0 : 0)) + pen2);
-			metrics_vec[2][n_cands * path +3] = sat_m<R>(sat_m<R>(metrics[path] + ( is_even[path] ? pen0 : 0)) + pen3);
+			metrics_vec[2][n_cands * path +0] =          sat_m_mc<R>(metrics[path] + (!is_even[path] ? pen0 : 0));
+			metrics_vec[2][n_cands * path +1] = sat_m_mc<R>(sat_m_mc<R>(metrics[path] + ( is_even[path] ? pen0 : 0)) + pen1);
+			metrics_vec[2][n_cands * path +2] = sat_m_mc<R>(sat_m_mc<R>(metrics[path] + ( is_even[path] ? pen0 : 0)) + pen2);
+			metrics_vec[2][n_cands * path +3] = sat_m_mc<R>(sat_m_mc<R>(metrics[path] + ( is_even[path] ? pen0 : 0)) + pen3);
 
 			if (L > 2)
 			{
-				metrics_vec[2][n_cands * path +4] = sat_m<R>(sat_m<R>(metrics_vec[2][n_cands * path +0] + pen1) + pen2);
-				metrics_vec[2][n_cands * path +5] = sat_m<R>(sat_m<R>(metrics_vec[2][n_cands * path +0] + pen1) + pen3);
-				metrics_vec[2][n_cands * path +6] = sat_m<R>(sat_m<R>(metrics_vec[2][n_cands * path +0] + pen2) + pen3);
-				metrics_vec[2][n_cands * path +7] = sat_m<R>(sat_m<R>(metrics_vec[2][n_cands * path +1] + pen2) + pen3);
+				metrics_vec[2][n_cands * path +4] = sat_m_mc<R>(sat_m_mc<R>(metrics_vec[2][n_cands * path +0] + pen1) + pen2);
+				metrics_vec[2][n_cands * path +5] = sat_m_mc<R>(sat_m_mc<R>(metrics_vec[2][n_cands * path +0] + pen1) + pen3);
+				metrics_vec[2][n_cands * path +6] = sat_m_mc<R>(sat_m_mc<R>(metrics_vec[2][n_cands * path +0] + pen2) + pen3);
+				metrics_vec[2][n_cands * path +7] = sat_m_mc<R>(sat_m_mc<R>(metrics_vec[2][n_cands * path +1] + pen2) + pen3);
 			}
 		}
 	}
@@ -1001,22 +982,22 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 				sum ^= (l[array][off_l +j] < 0);
 			is_even[path] = (sum == 0);
 
-			const auto pen0 = sat_m<R>(std::abs(l[array][off_l + bit_flips[4 * path +0]]));
-			const auto pen1 = sat_m<R>(std::abs(l[array][off_l + bit_flips[4 * path +1]]));
-			const auto pen2 = sat_m<R>(std::abs(l[array][off_l + bit_flips[4 * path +2]]));
-			const auto pen3 = sat_m<R>(std::abs(l[array][off_l + bit_flips[4 * path +3]]));
+			const auto pen0 = sat_m_mc<R>(std::abs(l[array][off_l + bit_flips[4 * path +0]]));
+			const auto pen1 = sat_m_mc<R>(std::abs(l[array][off_l + bit_flips[4 * path +1]]));
+			const auto pen2 = sat_m_mc<R>(std::abs(l[array][off_l + bit_flips[4 * path +2]]));
+			const auto pen3 = sat_m_mc<R>(std::abs(l[array][off_l + bit_flips[4 * path +3]]));
 
-			metrics_vec[2][n_cands * path +0] =          sat_m<R>(metrics[path] + (!is_even[path] ? pen0 : 0));
-			metrics_vec[2][n_cands * path +1] = sat_m<R>(sat_m<R>(metrics[path] + ( is_even[path] ? pen0 : 0)) + pen1);
-			metrics_vec[2][n_cands * path +2] = sat_m<R>(sat_m<R>(metrics[path] + ( is_even[path] ? pen0 : 0)) + pen2);
-			metrics_vec[2][n_cands * path +3] = sat_m<R>(sat_m<R>(metrics[path] + ( is_even[path] ? pen0 : 0)) + pen3);
+			metrics_vec[2][n_cands * path +0] =          sat_m_mc<R>(metrics[path] + (!is_even[path] ? pen0 : 0));
+			metrics_vec[2][n_cands * path +1] = sat_m_mc<R>(sat_m_mc<R>(metrics[path] + ( is_even[path] ? pen0 : 0)) + pen1);
+			metrics_vec[2][n_cands * path +2] = sat_m_mc<R>(sat_m_mc<R>(metrics[path] + ( is_even[path] ? pen0 : 0)) + pen2);
+			metrics_vec[2][n_cands * path +3] = sat_m_mc<R>(sat_m_mc<R>(metrics[path] + ( is_even[path] ? pen0 : 0)) + pen3);
 
 			if (L > 2)
 			{
-				metrics_vec[2][n_cands * path +4] = sat_m<R>(sat_m<R>(metrics_vec[2][n_cands * path +0] + pen1) + pen2);
-				metrics_vec[2][n_cands * path +5] = sat_m<R>(sat_m<R>(metrics_vec[2][n_cands * path +0] + pen1) + pen3);
-				metrics_vec[2][n_cands * path +6] = sat_m<R>(sat_m<R>(metrics_vec[2][n_cands * path +0] + pen2) + pen3);
-				metrics_vec[2][n_cands * path +7] = sat_m<R>(sat_m<R>(metrics_vec[2][n_cands * path +1] + pen2) + pen3);
+				metrics_vec[2][n_cands * path +4] = sat_m_mc<R>(sat_m_mc<R>(metrics_vec[2][n_cands * path +0] + pen1) + pen2);
+				metrics_vec[2][n_cands * path +5] = sat_m_mc<R>(sat_m_mc<R>(metrics_vec[2][n_cands * path +0] + pen1) + pen3);
+				metrics_vec[2][n_cands * path +6] = sat_m_mc<R>(sat_m_mc<R>(metrics_vec[2][n_cands * path +0] + pen2) + pen3);
+				metrics_vec[2][n_cands * path +7] = sat_m_mc<R>(sat_m_mc<R>(metrics_vec[2][n_cands * path +1] + pen2) + pen3);
 			}
 		}
 	}
@@ -1075,22 +1056,22 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 				sum ^= (l[array][off_l +j] < 0);
 			is_even[path] = (sum == 0);
 
-			const auto pen0 = sat_m<R>(std::abs(l[array][off_l + bit_flips[4 * path +0]]));
-			const auto pen1 = sat_m<R>(std::abs(l[array][off_l + bit_flips[4 * path +1]]));
-			const auto pen2 = sat_m<R>(std::abs(l[array][off_l + bit_flips[4 * path +2]]));
-			const auto pen3 = sat_m<R>(std::abs(l[array][off_l + bit_flips[4 * path +3]]));
+			const auto pen0 = sat_m_mc<R>(std::abs(l[array][off_l + bit_flips[4 * path +0]]));
+			const auto pen1 = sat_m_mc<R>(std::abs(l[array][off_l + bit_flips[4 * path +1]]));
+			const auto pen2 = sat_m_mc<R>(std::abs(l[array][off_l + bit_flips[4 * path +2]]));
+			const auto pen3 = sat_m_mc<R>(std::abs(l[array][off_l + bit_flips[4 * path +3]]));
 
-			metrics_vec[2][n_cands * path +0] =          sat_m<R>(metrics[path] + (!is_even[path] ? pen0 : 0));
-			metrics_vec[2][n_cands * path +1] = sat_m<R>(sat_m<R>(metrics[path] + ( is_even[path] ? pen0 : 0)) + pen1);
-			metrics_vec[2][n_cands * path +2] = sat_m<R>(sat_m<R>(metrics[path] + ( is_even[path] ? pen0 : 0)) + pen2);
-			metrics_vec[2][n_cands * path +3] = sat_m<R>(sat_m<R>(metrics[path] + ( is_even[path] ? pen0 : 0)) + pen3);
+			metrics_vec[2][n_cands * path +0] =          sat_m_mc<R>(metrics[path] + (!is_even[path] ? pen0 : 0));
+			metrics_vec[2][n_cands * path +1] = sat_m_mc<R>(sat_m_mc<R>(metrics[path] + ( is_even[path] ? pen0 : 0)) + pen1);
+			metrics_vec[2][n_cands * path +2] = sat_m_mc<R>(sat_m_mc<R>(metrics[path] + ( is_even[path] ? pen0 : 0)) + pen2);
+			metrics_vec[2][n_cands * path +3] = sat_m_mc<R>(sat_m_mc<R>(metrics[path] + ( is_even[path] ? pen0 : 0)) + pen3);
 
 			if (L > 2)
 			{
-				metrics_vec[2][n_cands * path +4] = sat_m<R>(sat_m<R>(metrics_vec[2][n_cands * path +0] + pen1) + pen2);
-				metrics_vec[2][n_cands * path +5] = sat_m<R>(sat_m<R>(metrics_vec[2][n_cands * path +0] + pen1) + pen3);
-				metrics_vec[2][n_cands * path +6] = sat_m<R>(sat_m<R>(metrics_vec[2][n_cands * path +0] + pen2) + pen3);
-				metrics_vec[2][n_cands * path +7] = sat_m<R>(sat_m<R>(metrics_vec[2][n_cands * path +1] + pen2) + pen3);
+				metrics_vec[2][n_cands * path +4] = sat_m_mc<R>(sat_m_mc<R>(metrics_vec[2][n_cands * path +0] + pen1) + pen2);
+				metrics_vec[2][n_cands * path +5] = sat_m_mc<R>(sat_m_mc<R>(metrics_vec[2][n_cands * path +0] + pen1) + pen3);
+				metrics_vec[2][n_cands * path +6] = sat_m_mc<R>(sat_m_mc<R>(metrics_vec[2][n_cands * path +0] + pen2) + pen3);
+				metrics_vec[2][n_cands * path +7] = sat_m_mc<R>(sat_m_mc<R>(metrics_vec[2][n_cands * path +1] + pen2) + pen3);
 			}
 		}
 	}
@@ -1113,22 +1094,22 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 				sum ^= (l[array][off_l +j] < 0);
 			is_even[path] = (sum == 0);
 
-			const auto pen0 = sat_m<R>(std::abs(l[array][off_l + bit_flips[4 * path +0]]));
-			const auto pen1 = sat_m<R>(std::abs(l[array][off_l + bit_flips[4 * path +1]]));
-			const auto pen2 = sat_m<R>(std::abs(l[array][off_l + bit_flips[4 * path +2]]));
-			const auto pen3 = sat_m<R>(std::abs(l[array][off_l + bit_flips[4 * path +3]]));
+			const auto pen0 = sat_m_mc<R>(std::abs(l[array][off_l + bit_flips[4 * path +0]]));
+			const auto pen1 = sat_m_mc<R>(std::abs(l[array][off_l + bit_flips[4 * path +1]]));
+			const auto pen2 = sat_m_mc<R>(std::abs(l[array][off_l + bit_flips[4 * path +2]]));
+			const auto pen3 = sat_m_mc<R>(std::abs(l[array][off_l + bit_flips[4 * path +3]]));
 
-			metrics_vec[2][n_cands * path +0] =          sat_m<R>(metrics[path] + (!is_even[path] ? pen0 : 0));
-			metrics_vec[2][n_cands * path +1] = sat_m<R>(sat_m<R>(metrics[path] + ( is_even[path] ? pen0 : 0)) + pen1);
-			metrics_vec[2][n_cands * path +2] = sat_m<R>(sat_m<R>(metrics[path] + ( is_even[path] ? pen0 : 0)) + pen2);
-			metrics_vec[2][n_cands * path +3] = sat_m<R>(sat_m<R>(metrics[path] + ( is_even[path] ? pen0 : 0)) + pen3);
+			metrics_vec[2][n_cands * path +0] =          sat_m_mc<R>(metrics[path] + (!is_even[path] ? pen0 : 0));
+			metrics_vec[2][n_cands * path +1] = sat_m_mc<R>(sat_m_mc<R>(metrics[path] + ( is_even[path] ? pen0 : 0)) + pen1);
+			metrics_vec[2][n_cands * path +2] = sat_m_mc<R>(sat_m_mc<R>(metrics[path] + ( is_even[path] ? pen0 : 0)) + pen2);
+			metrics_vec[2][n_cands * path +3] = sat_m_mc<R>(sat_m_mc<R>(metrics[path] + ( is_even[path] ? pen0 : 0)) + pen3);
 
 			if (L > 2)
 			{
-				metrics_vec[2][n_cands * path +4] = sat_m<R>(sat_m<R>(metrics_vec[2][n_cands * path +0] + pen1) + pen2);
-				metrics_vec[2][n_cands * path +5] = sat_m<R>(sat_m<R>(metrics_vec[2][n_cands * path +0] + pen1) + pen3);
-				metrics_vec[2][n_cands * path +6] = sat_m<R>(sat_m<R>(metrics_vec[2][n_cands * path +0] + pen2) + pen3);
-				metrics_vec[2][n_cands * path +7] = sat_m<R>(sat_m<R>(metrics_vec[2][n_cands * path +1] + pen2) + pen3);
+				metrics_vec[2][n_cands * path +4] = sat_m_mc<R>(sat_m_mc<R>(metrics_vec[2][n_cands * path +0] + pen1) + pen2);
+				metrics_vec[2][n_cands * path +5] = sat_m_mc<R>(sat_m_mc<R>(metrics_vec[2][n_cands * path +0] + pen1) + pen3);
+				metrics_vec[2][n_cands * path +6] = sat_m_mc<R>(sat_m_mc<R>(metrics_vec[2][n_cands * path +0] + pen2) + pen3);
+				metrics_vec[2][n_cands * path +7] = sat_m_mc<R>(sat_m_mc<R>(metrics_vec[2][n_cands * path +1] + pen2) + pen3);
 			}
 		}
 	}

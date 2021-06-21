@@ -11,6 +11,7 @@
 #include <random>
 
 #include <aff3ct.hpp>
+
 #include "Codec_polar_mc.hpp"
 
 using namespace aff3ct;
@@ -24,7 +25,7 @@ struct params
 	float  R;                  // code rate (R=K/N)
 
 	std::unique_ptr<factory::Source          > source;
-	std::unique_ptr<factory::Codec_polar  > codec;
+	std::unique_ptr<factory::Codec_polar_mc  > codec;
 	std::unique_ptr<factory::Modem           > modem;
 	std::unique_ptr<factory::Channel         > channel;
 	std::unique_ptr<factory::Monitor_BFER    > monitor;

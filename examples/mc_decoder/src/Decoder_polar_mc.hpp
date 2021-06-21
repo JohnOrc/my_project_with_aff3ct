@@ -1,21 +1,4 @@
-/*!
- * \file
- * \brief Class factory::Decoder_polar.
- */
-#ifndef FACTORY_DECODER_POLAR_HPP
-#define FACTORY_DECODER_POLAR_HPP
-
-#include <vector>
-#include <string>
-#include <map>
-#include <cli.hpp>
-
-#include "Tools/Factory/Header.hpp"
-#include "Module/CRC/CRC.hpp"
-#include "Module/Encoder/Encoder.hpp"
-#include "Module/Decoder/Decoder_SIHO.hpp"
-#include "Module/Decoder/Decoder_SISO.hpp"
-#include "Factory/Module/Decoder/Decoder.hpp"
+#include <aff3ct.hpp>
 
 namespace aff3ct
 {
@@ -79,5 +62,3 @@ protected:
 };
 }
 }
-
-#endif /* FACTORY_DECODER_POLAR_HPP */

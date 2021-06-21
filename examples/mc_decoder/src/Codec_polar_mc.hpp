@@ -3,11 +3,14 @@
 #include <map>
 #include <cli.hpp>
 
+/*
 #include "Tools/Factory/Header.hpp"
 #include "Module/CRC/CRC.hpp"
 #include "Tools/Codec/Polar/Codec_polar.hpp"
 #include "Factory/Tools/Code/Polar/Frozenbits_generator.hpp"
 #include "Factory/Tools/Codec/Codec_SISO.hpp"
+*/
+#include <aff3ct.hpp>
 
 namespace aff3ct
 {
@@ -39,6 +42,8 @@ public:
 
 	// builder
 	template <typename B = int, typename Q = float>
+
+	// TODO
 	tools::Codec_polar<B,Q>* build(const module::CRC<B>* crc = nullptr) const;
 };
 }

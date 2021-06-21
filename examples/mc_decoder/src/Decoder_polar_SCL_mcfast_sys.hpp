@@ -1,21 +1,5 @@
-/*!
- * \file
- * \brief Class module::Decoder_polar_SCL_mcfast_sys.
- */
-#ifndef DECODER_POLAR_SCL_FAST_SYS
-#define DECODER_POLAR_SCL_FAST_SYS
+#include <aff3ct.hpp>
 
-#include <vector>
-#include <mipp.h>
-
-#include "Tools/Code/Polar/API/API_polar_dynamic_seq.hpp"
-#include "Tools/Algo/Sort/LC_sorter.hpp"
-#include "Tools/Code/Polar/decoder_polar_functions.h"
-#include "Tools/Interface/Interface_get_set_frozen_bits.hpp"
-#include "Tools/Code/Polar/Pattern_polar_parser.hpp"
-#include "Tools/Code/Polar/Patterns/Pattern_polar_i.hpp"
-
-#include "Module/Decoder/Decoder_SIHO.hpp"
 
 namespace aff3ct
 {
@@ -104,9 +88,3 @@ private:
 };
 }
 }
-
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-#include "Module/Decoder/Polar/SCL/Decoder_polar_SCL_fast_sys.hxx"
-#endif
-
-#endif /* DECODER_POLAR_SCL_FAST_SYS_ */
