@@ -7,10 +7,13 @@
 #include <aff3ct.hpp>
 using namespace aff3ct;
 
+#include "codec_polar.hpp"
+
 struct params
 {
 	int   K         = 128;     // number of information bits
 	int   N         = 256;     // codeword size
+	int   L 		=   8;     // list size of SCL 
 	int   fe        =  10;     // number of frame errors
 	int   seed      =   0;     // PRNG seed for the AWGN channel
 	float ebn0_min  =   3.00f; // minimum SNR value
@@ -135,11 +138,13 @@ void init_params(params &p)
 
 void init_modules(const params &p, modules &m)
 {
+	// generate frozen bits
+  	auto frozen_bits = generate_frozen_bits(p.K, p.N, 6);
 	m.source  = std::unique_ptr<module::Source_random         <>>(new module::Source_random         <>(p.K      ));
-	m.encoder = std::unique_ptr<module::Encoder_polar_sys<>>(new module::Encoder_polar_sys<>(p.K, p.N ));
+	m.encoder = std::unique_ptr<module::Encoder_polar_sys<>>(new module::Encoder_polar_sys<>(p.K, p.N, frozen_bits ));
 	m.modem   = std::unique_ptr<module::Modem_BPSK            <>>(new module::Modem_BPSK            <>(p.N      ));
 	m.channel = std::unique_ptr<module::Channel_AWGN_LLR      <>>(new module::Channel_AWGN_LLR      <>(p.N      ));
-	m.decoder = std::unique_ptr<module::Decoder_polar_SCL_fast_sys<>>(new module::Decoder_polar_SCL_fast_sys<>(p.K, p.N ));
+	m.decoder = std::unique_ptr<module::Decoder_polar_SCL_fast_sys<>>(new module::Decoder_polar_SCL_fast_sys<>(p.K, p.N, p.L, frozen_bits  ));
 	m.monitor = std::unique_ptr<module::Monitor_BFER          <>>(new module::Monitor_BFER          <>(p.K, p.fe));
 	m.channel->set_seed(p.seed);
 
