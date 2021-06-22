@@ -12,10 +12,6 @@ set (EXECUTABLE_OUTPUT_PATH bin/)
 
 # Create the executable from sources
 add_executable(main ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
-                    ${CMAKE_CURRENT_SOURCE_DIR}/src/Codec_polar_mc.hpp
-                    ${CMAKE_CURRENT_SOURCE_DIR}/src/Codec_polar_mc.cpp
-                    ${CMAKE_CURRENT_SOURCE_DIR}/src/Decoder_polar_mc.hpp
-                    ${CMAKE_CURRENT_SOURCE_DIR}/src/Decoder_polar_mc.cpp
                     )
 
 # Link with the "Threads library (required to link with AFF3CT after)
