@@ -141,7 +141,7 @@ void init_modules(const params &p, modules &m)
 	// generate frozen bits
   	auto frozen_bits = generate_frozen_bits(p.K, p.N, 6);
 	m.source  = std::unique_ptr<module::Source_random         <>>(new module::Source_random         <>(p.K      ));
-	m.encoder = std::unique_ptr<module::Encoder_polar_sys<>>(new module::Encoder_polar_sys<>(p.K, p.N, frozen_bits ));
+	m.encoder = std::unique_ptr<module::Encoder_polar_sys     <>>(new module::Encoder_polar_sys     <>(p.K, p.N, frozen_bits ));
 	m.modem   = std::unique_ptr<module::Modem_BPSK            <>>(new module::Modem_BPSK            <>(p.N      ));
 	m.channel = std::unique_ptr<module::Channel_AWGN_LLR      <>>(new module::Channel_AWGN_LLR      <>(p.N      ));
 	m.decoder = std::unique_ptr<module::Decoder_polar_SCL_fast_sys<>>(new module::Decoder_polar_SCL_fast_sys<>(p.K, p.N, p.L, frozen_bits  ));
