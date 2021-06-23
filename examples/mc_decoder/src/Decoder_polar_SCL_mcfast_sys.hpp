@@ -2,8 +2,8 @@
  * \file
  * \brief Class module::Decoder_polar_SCL_fast_sys.
  */
-#ifndef DECODER_POLAR_SCL_FAST_SYS
-#define DECODER_POLAR_SCL_FAST_SYS
+#ifndef DECODER_POLAR_SCL_MCFAST_SYS
+#define DECODER_POLAR_SCL_MCFAST_SYS
 
 #include <vector>
 #include <mipp.h>
@@ -20,7 +20,7 @@ template <typename B = int, typename R = float,
 															   tools::g0_LLR<  R>,
 															   tools::h_LLR <B,R>,
 															   tools::xo_STD<B  >>>
-class Decoder_polar_SCL_fast_sys : public Decoder_SIHO<B,R>, public tools::Interface_notify_frozenbits_update
+class Decoder_polar_SCL_mcfast_sys : public Decoder_SIHO<B,R>, public tools::Interface_notify_frozenbits_update
 {
 protected:
 	const 	int							m;				// graph depth
@@ -49,17 +49,18 @@ protected:
 	mipp::vector<R>						l_tmp;
 
 public:
-	Decoder_polar_SCL_fast_sys(const int& K, const int& N, const int& L, const std::vector<bool>& frozen_bits);
+	Decoder_polar_SCL_mcfast_sys(const int& K, const int& N, const int& L, const std::vector<bool>& frozen_bits);
 
-	Decoder_polar_SCL_fast_sys(const int& K, const int& N, const int& L, const std::vector<bool>& frozen_bits,
+	Decoder_polar_SCL_mcfast_sys(const int& K, const int& N, const int& L, const std::vector<bool>& frozen_bits,
 							   const std::vector<tools::Pattern_polar_i*> &polar_patterns,
 							   const int idx_r0, const int idx_r1);
 
-	virtual ~Decoder_polar_SCL_fast_sys();
+	virtual ~Decoder_polar_SCL_mcfast_sys();
 
-	virtual Decoder_polar_SCL_fast_sys<B,R,API_polar>* clone() const;
+	virtual Decoder_polar_SCL_mcfast_sys<B,R,API_polar>* clone() const;
 
-	virtual void notify_noise_update();
+	virtual void set_frozen_bits(const std::vector<bool>& frozen_bits);
+	virtual const std::vector<bool>& get_frozen_bits() const;
 
 protected:
 	virtual void _decode		(const R *Y_N								);
@@ -94,3 +95,4 @@ private:
 };
 }
 }
+#endif
