@@ -334,7 +334,7 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
                 break;
         }
 
-        recursive_decode(Y_N, off_l, off_s, rev_depth - 1, ++node_id);
+        recursive_decode(Y_N, off_l, off_s, rev_depth - 1, ++node_id); // recursive call left
 
         // g
         switch (node_type)
@@ -366,7 +366,7 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
                 break;
         }
 
-        recursive_decode(Y_N, off_l, off_s + n_elm_2, rev_depth - 1, ++node_id);
+        recursive_decode(Y_N, off_l, off_s + n_elm_2, rev_depth - 1, ++node_id); // recursive call right
 
         // xor
         switch (node_type)
@@ -398,6 +398,7 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
                     const auto path   = paths[i];
                     const auto parent = l[path_2_array     [path][rev_depth    ]].data();
                     const auto child  = l[up_ref_array_idx (path, rev_depth - 1)].data();
+                    API_polar::f(parent + off_l, parent + off_l + n_elm_2, child + off_l + n_elmts, e_elm_2);
                 }
                 break;
             case tools::polar_node_t::REP_LEFT:
@@ -500,7 +501,230 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
     }
 }
 
+template <typename B, typename R, class API_polar>
+void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
+::_store(B *V_K) const
+{
+    tools::fb_extract(this->polar_patterns.get_leaves_pattern_types(), this->s[best_path].data(), V_K);
+}
 
+template <typename B, typename R, class API_polar>
+void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
+::_store_cw(B *V_N) const
+{
+    std::copy(this->s[best_path].data(), this->s[best_path].data() + this->N, V_N);
+}
+
+template <typename B, typename R, class API_polar>
+void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
+::update_paths_r0(const int r_d, const int off_l, const int off_s, const int n_elmts)
+{
+    if (n_active_paths > 1)
+        for (auto i = 0; i < n_active_paths; i++)
+        {
+            const auto path  = paths[i];
+            const auto array = path_2_array[path][r_d];
+
+            auto pen = (R)0;
+            for (auto j = 0; j < n_elmts; j++)
+                pen = sat_m<R>(pen + sat_m<R>(-std::min((R)l[array][off_l + j], (R)0)));
+            metrics[path] = sat_m<R>(metrics[path] + pen);
+        }
+    
+    for (auto i = 0; i < n_active_paths; i++)
+        API_polar::h0(s[paths[i]], off_s, n_elmts);
+}
+
+template <typename B, typename R, class API_polar>
+template <int REV_D, int N_ELMTS>
+void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
+::update_paths_r0(const int off_l, const int off_s)
+{
+    if (n_active_paths > 1)
+        for (auto i = 0; i < n_active_paths; i++)
+        {
+            const auto path  = paths[i];
+            const auto array = path_2_array[path][REV_D];
+
+            auto pen = (R)0;
+            for (auto j = 0; j < N_ELMTS; j++)
+                pen = sat_m<R>(pen + sat_m<R>(-std::min((R)l[array][off_l + j], (R)0)));
+            metrics[path] = sat_m<R>(metrics[path] + pen);
+        }
+    
+    for (auto i = 0; i < n_active_paths; i++)
+        API_polar::template h0<N_ELMTS>(s[paths[i]], off_s, N_ELMTS);
+}
+
+template <typename B, typename R, class API_polar>
+void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
+::update_paths_r1(const int r_d, const int off_l, const int off_s, const int n_elmts)
+{
+    if (r_d == 0)
+        update_paths_rep(r_d, off_l, off_s, n_elmts);
+    else
+    {
+        // generate the candidates with Chase-II algorithm
+        if (n_elmts == 2)
+        {
+            for (auto i = 0; i < n_active_paths; i++)
+            {
+                const auto path  = paths[i];
+                const auto array = path_2_array[path][r_d];
+
+                bit_flips[2 * path + 0] = 0;
+                bit_flips[2 * path + 1] = 1;
+
+                const auto pen0 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path + 0]]));
+                const auto pen1 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path + 1]]));
+
+                metrics_vec[1][4 * path + 0] =          metrics       [    path    ];
+                metrics_vec[1][4 * path + 1] = sat_m<R>(metrics       [    path    ] + pen0);
+                metrics_vec[1][4 * path + 2] = sat_m<R>(metrics       [    path    ] + pen1);  
+                metrics_vec[1][4 * path + 3] = sat_m<R>(metrics_vec[1][4 * path + 1] + pen1);
+            }
+        }
+        else
+        {
+            for (auto i = 0; i < n_active_paths; i++)
+            {
+                const auto path  = paths[i];
+                const auto array = path_2_array[path][r_d];
+
+                for (auto i = 0; i < n_elmts; i++) 
+                    l_tmp[i] = std::abs(l[array][off_l + i]);
+                
+                sorter.partial_sort_destructive(l_tmp.data(), best_idx, n_elmts, 2);
+                bit_flips[2 * path + 0] = best_idx[0];
+                bit_flips[2 * path + 1] = best_idx[1];
+
+                const auto pen0 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path + 0]]));
+                const auto pen1 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path + 1]]));
+
+                metrics_vec[1][4 * path + 0] =          metrics       [    path    ];
+                metrics_vec[1][4 * path + 1] = sat_m<R>(metrics       [    path    ] + pen0);
+                metrics_vec[1][4 * path + 2] = sat_m<R>(metrics       [    path    ] + pen1);
+                metrics_vec[1][4 * path + 3] = sat_m<R>(metrics_vec[1][4 * path + 1] + pen1);
+            }
+        }
+        for (auto i = n_active_paths; i < L; i++)
+            for (auto j = 0; j < 4; j++)
+                metrics_vec[1][4 * paths[i] + j] = std::numeric_limits<R>::max();
+
+        const auto n_list = (n_active_paths * 4 >= L) ? L : n_active_paths * 4;
+        sorter.partial_sort(metrics_vec[1].data(), best_idx, L * 4, n_list);
+
+        for (auto i = 0; i < n_list; i++)
+            dup_count[best_idx[i] / 4]++;
+        
+        erase_bad_paths();
+
+        for (auto i = 0; i < n_list; i++)
+        {
+            const auto path  = best_idx[i] / 4;
+            const auto dup   = best_idx[i] % 4;
+            const auto array = path_2_array[path][r_d];
+
+            API_polar::h(s[path], l[array], off_l, off_s, n_elmts);
+
+            const auto new_path = (dup_count[path] > 1) ? duplicate_tree(path, off_l, off_s, n_elmts) : path;
+            flip_bits_r1(path, new_path, dup, off_s, n_elmts);
+            metrics[new_path] = metrics_vec[1][best_idx[i]];
+
+            dup_count[path]--;
+        }
+    }
+}
+
+template <typename B, typename R, class API_polar>
+template <int REV_D, int N_ELMTS>
+void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
+::update_paths_r1(const int off_l, const int off_s)
+{
+    if (REV_D == 0)
+        update_paths_rep<REV_D, N_ELMTS>(off_l, off_s);
+    else
+    {
+        // generate the candidates with the Chase-II algorithm
+        if (N_ELMTS == 2)
+        {
+            for (auto i = 0; i < n_active_paths; i++)
+            {
+                const auto path  = paths[i];
+                const auto array = path_2_array[path][REV_D];
+
+                bit_flips[2 * path + 0] = 0;
+                bit_flips[2 * path + 1] = 1;
+
+                const auto pen0 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path + 0]]));
+                const auto pen1 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path + 1]]));
+
+                metrics_vec[1][4 * path + 0] =          metrics       [    path    ];
+                metrics_vec[1][4 * path + 1] = sat_m<R>(metrics       [    path    ] + pen0);
+                metrics_vec[1][4 * path + 2] = sat_m<R>(metrics       [    path    ] + pen1);
+                metrics_vec[1][4 * path + 3] = sat_m<R>(metrics_vec[1][4 * path + 1] + pen1);
+            }
+        }
+        else
+        {
+            for (auto i = 0; i < n_active_paths; i++)
+            {
+                const auto path  = paths[i];
+                const auto array = path_2_array[path][REV_D];
+
+                for (auto i = 0; i < N_ELMTS; i++)
+                    l_tmp[i] = std::abs(l[array][off_l + i]);
+                sorter.partial_sort_destructive(l_tmp.data() + off_l, best_idx, N_ELMTS, 2);
+
+                bit_flips[2 * path + 0] = best_idx[0];
+                bit_flips[2 * path + 1] = best_idx[1];
+
+                const auto pen0 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path + 0]]));
+                const auto pen1 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path + 1]]));
+
+                metrics_vec[1][4 * path + 0] =          metrics       [    path    ];
+                metrics_vec[1][4 * path + 1] = sat_m<R>(metrics       [    path    ] + pen0);
+                metrics_vec[1][4 * path + 2] = sat_m<R>(metrics       [    path    ] + pen1);
+                metrics_vec[1][4 * path + 3] = sat_m<R>(metrics_vec[1][4 * path + 1] + pen1);
+            }
+        }
+        for (auto i = n_active_paths; i < L; i++)
+            for (auto j = 0; j < 4; j++)
+                metrics_vec[1][4 * paths[i] + j] = std::numeric_limits<R>max();
+
+        // L first of the lists are the L best paths
+        const auto n_list = (n_active_paths * 4 >= L) ? L : n_active_paths * 4;
+        sorter.partial_sort(metrics_vec[1].data(), best_idx, L * 4, n_list);
+
+        // count the number of duplications per path
+        for (auto i = 0; i < n_list; i++)
+            dup_count[best_idx[i] / 4]++;
+
+        erase_bad_paths();
+
+        for (auto i = 0; i < n_list; i++)
+        {
+            const auto path  = best_idx[i] / 4;
+            const auto dup   = best_idx[i] % 4;
+            const auto array = path_2_array[path][REV_D];
+
+            API_polar::template h<N_ELMTS>(s[path], l[array], off_l, off_s, N_ELMTS);
+
+            const auto new_path = (dup_count[path] > 1) ? duplicate_tree(path, off_l, off_s, N_ELMTS) : path;
+            flip_bits_r1(path, new_path, dup, off_s, N_ELMTS);
+            metrics[new_path] = metrics_vec[1][best_idx[i]];
+
+            dup_count[path]--;
+        }
+    }
+}
+
+template <typename B, typename R, class API_polar>
+void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
+::flip_bits_r1(const int old_path, const int new_path, const int dup, const int off_s, const int n_elmts)
+{
+    
+}
 
 
 
