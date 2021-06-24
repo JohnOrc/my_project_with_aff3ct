@@ -256,6 +256,75 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
         std::fill(n_array_ref[i].begin(), n_array_ref[i].end(), 0);
 }
 
+template <typename B, typename R, class API_polar>
+void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
+::_decode(const R *Y_N)
+{
+    int first_node_id = 0, off_l = 0, off_s = 0;
+    recursive_decode(Y_N, off_l, off_s, m, first_node_id);
+}
+
+template <typename B, typename R, class API_polar>
+int Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
+::_decode_siho(const R *Y_N, B *V_K, const size_t frame_id)
+{
+    if (!API_polar::isAligned(Y_N))
+        throw tools::runtime_error(__FILE__, __LINE__, __func__, "'Y_N' is misaligned memory.");
+    
+    if (!API_polar::isAligned(V_K))
+        throw tools::runtime_error(__FILE__, __LINE__, __func__, "'V_K' is misaligned memory.");
+
+    this->init_buffers();
+
+    this->_decode(Y_N);
+
+    this->select_best_path(frame_id);
+
+    this->_store(V_K);
+
+    return 0;
+}
+
+template <typename B, typename R, class API_polar>
+int Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
+::_decode_siho_cw(const R *Y_N, B *V_N, const size_t frame_id)
+{
+    if (!API_polar::isAligned(Y_N))
+        throw tools::runtime_error(__FILE__, __LINE__, __func__, "'Y_N' is misaligned memory.");
+
+    if (!API_polar::isAligned(V_N))
+        throw tools::runtime_error(__FILE__, __LINE__, __func__, "'V_N' is misaligned memory.");
+    
+    this->init_buffers();
+
+    this->_decode(Y_N);
+
+    this->select_best_path(frame_id);
+
+    this->_store_cw(V_N);
+
+    return 0;
+}
+
+template <typename B, typename R, class API_polar>
+void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
+::recursive_decode(const R *Y_N, const int off_l, const int off_s, const int rev_depth, int &node_id)
+{
+    const int n_elmts = 1 << rev_depth;
+    const int n_elm_2 = n_elmts >> 1;
+    const auto node_type = polar_patterns.get_node_type(node_id);
+
+    const bool is_terminal_pattern = (node_type == tools::polar_node_t::RATE_0) ||
+                                     (node_type == tools::polar_node_t::RATE_1) ||
+                                     (node_type == tools::polar_node_t::REP)    ||
+                                     (node_type == tools::polar_node_t::SPC);
+
+    if (rev_depth == m)
+    {
+        
+    }
+}
+
 
 
 }
