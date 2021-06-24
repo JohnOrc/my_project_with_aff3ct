@@ -60,7 +60,7 @@ public:
 	virtual Decoder_polar_SCL_mcfast_sys<B,R,API_polar>* clone() const;
 
 	virtual void set_frozen_bits(const std::vector<bool>& frozen_bits);
-	virtual const std::vector<bool>& get_frozen_bits() const;
+	virtual const std::vector<bool>& get_frozen_bits() const; 
 
 protected:
 	virtual void _decode		(const R *Y_N								);

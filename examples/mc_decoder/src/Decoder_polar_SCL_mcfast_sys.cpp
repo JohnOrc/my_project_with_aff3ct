@@ -319,11 +319,188 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
                                      (node_type == tools::polar_node_t::REP)    ||
                                      (node_type == tools::polar_node_t::SPC);
 
+    // root node
     if (rev_depth == m)
     {
+        switch (node_type)
+        {
+            case tools::polar_node_t::STANDARD:
+                API_polar::f(Y_N, Y_N + n_elm_2, l[0].data(), n_elm_2);
+                break;
+            case tools::polar_node_t::REP_LEFT:
+                API_polar::f(Y_N, Y_N + n_elm_2, l[0].data(), n_elm_2);
+                break;
+            default:
+                break;
+        }
+
+        recursive_decode(Y_N, off_l, off_s, rev_depth - 1, ++node_id);
+
+        // g
+        switch (node_type)
+        {
+            case tools::polar_node_t::STANDARD:
+                for (auto i = 0; i < n_active_paths; i++)
+                {
+                    const auto path = paths[i];
+                    const auto child = l[up_ref_array_idx(path, rev_depth - 1)].data();
+                    API_polar::g (Y_N, Y_N + n_elm_2, s[path].data() + off_s, child, n_elm_2);
+                }
+                break;
+            case tools::polar_node_t::RATE_0_LEFT:
+                for (auto i = 0; i < n_active_paths; i++)
+                {
+                    const auto path = paths[i];
+                    const auto child = l[up_ref_array_idx(path, rev_depth - 1)].data();
+                    API_polar::g0(Y_N, Y_N + n_elm_2,                         child, n_elm_2);
+                }
+            case tools::polar_node_t::REP_LEFT:
+                for (auto i = 0; i < n_active_paths; i++)
+                {
+                    const auto path = paths[i];
+                    const auto child = l[up_ref_array_idx(path, rev_depth - 1)].data();
+                    API_polar::gr(Y_N, Y_N + n_elm_2, s[path].data() + off_s, child, n_elm_2);
+                }
+                break;
+            default:
+                break;
+        }
+
+        recursive_decode(Y_N, off_l, off_s + n_elm_2, rev_depth - 1, ++node_id);
+
+        // xor
+        switch (node_type)
+        {
+            case tools::polar_node_t::STANDARD:
+                for (auto i = 0; i < n_active_paths; i++)
+                    API_polar::xo (s[paths[i]], off_s, off_s + n_elm_2, off_s, n_elm_2);
+                break;
+            case tools::polar_node_t::RATE_0_LEFT:
+                for (auto i = 0; i < n_active_paths; i++)
+                    API_polar::xo0(s[paths[i]],        off_s + n_elm_2, off_s, n_elm_2);
+                break;
+            case tools::polar_node_t::REP_LEFT:
+                for (auto i = 0; i < n_active_paths; i++)
+                    API_polar::xo (s[paths[i]], off_s, off_s + n_elm_2, off_s, n_elm_2);
+                break;
+            default:
+                break;
+        }
+    }
+    else if (!is_terminal_pattern && rev_depth) // other node (not root or leaf)
+    {
+        // f
+        switch (node_type)
+        {
+            case tools::polar_node_t::STANDARD:
+                for (auto i = 0; i < n_active_paths; i++)
+                {
+                    const auto path   = paths[i];
+                    const auto parent = l[path_2_array     [path][rev_depth    ]].data();
+                    const auto child  = l[up_ref_array_idx (path, rev_depth - 1)].data();
+                }
+                break;
+            case tools::polar_node_t::REP_LEFT:
+                for (auto i = 0; i < n_active_paths; i++)
+                {
+                    const auto path   = paths[i];
+                    const auto parent = l[path_2_array     [path][rev_depth   ]].data();
+                    const auto child  = l[up_ref_array_idx(path, rev_depth - 1)].data();
+                    API_polar::f(parent + off_l, parent + off_l + n_elm_2, child + off_l + n_elmts, n_elm_2);
+                }
+                break;
+            case tools::polar_node_t::RATE_0_LEFT:
+                for (auto i = 0; i < n_active_paths && n_active_paths > 1; i++)
+                {
+                    const auto path   = paths[i];
+                    const auto parent = l[path_2_array     [path][rev_depth   ]].data();
+                    const auto child  = l[up_ref_array_idx(path, rev_depth - 1)].data();
+                    API_polar::f(parent + off_l, parent + off_l + n_lem_2, child + off_l + n_elmts, n_elm_2);
+                }
+                break;
+            default:
+                break;
+        }
+
+        recursive_decode(Y_N, off_l + n_elmts, off_s, rev_depth - 1, ++node_id);
+
+        // g
+        switch (node_type)
+        {
+            case tools::polar_node_t::STANDARD:
+                for (auto i = 0; i < n_active_paths; i++)
+                {
+                    const auto path   = paths[i];
+                    const auto parent = l[path_2_array    [path][rev_depth    ]].data();
+                    const auto child  = l[up_ref_array_idx(path, rev_depth - 1)].data();
+                    API_polar::g(parent + off_l, parent + off_l + n_elm_2, s[path].data() + off_s, child + off_l + n_elmts, n_elm_2);
+                }
+                break;
+            case tools::polar_node_t::RATE_0_LEFT:
+                for (auto i = 0; i < n_active_paths; i++)
+                {
+                    const auto path   = paths[i];
+                    const auto parent = l[path_2_array    [path][rev_depth    ]].data();
+                    const auto child  = l[up_ref_array_idx(path, rev_depth - 1)].data();
+                    API_polar::g0(parent + off_l, parent + off_l + n_elm_2, child + off_l + n_elmts, e_elm_2);
+                }
+                break;
+            case tools::polar_node_t::REP_LEFT:
+                for (auto i = 0; i < n_active_paths; i++)
+                {
+                    const auto path   = paths[i];
+                    const auto parent = l[path_2_array    [path][rev_depth    ]].data();
+                    const auto child  = l[up_ref_array_idx(path, rev_depth - 1)].data();
+                    API_polar::gr(parent + off_l, parent + off_l + n_elm_2, s[path].data() + off_s, child + off_l + n_elmts, n_elm_2);
+                }
+                break;
+            default:
+                break;
+        }
         
+        recursive_decode(Y_N, off_l + n_elmts, off_s + n_elm_2, rev_depth - 1, ++node_id);
+
+        // xor
+        switch (node_type)
+        {
+            case tools::polar_node_t::STANDARD:
+                for (auto i = 0; i < n_active_paths; i++)
+                    API_polar::xo (s[paths[i]], off_s, off_s + n_elm_2, off_s, n_elm_2);
+                break;
+            case tools::polar_node_t::RATE_0_LEFT:
+                for (auto i = 0; i < n_active_paths; i++)
+                    API_polar::xo0(s[paths[i]], off_s + n_elm_2, off_s, n_elm_2);
+                break;
+            case tools::polar_node_t::REP_LEFT:
+                for (auto i = 0; i < n_active_paths; i++)
+                    API_polar::xo (s[paths[i]], off_s, off_s + n_elm_2, off_s, n_elm_2);
+                break;
+            default:
+                break;
+        }
+    }
+    else // leaf node
+    {
+        // h
+        switch (node_type)
+        {
+            case tools::polar_node_t::RATE_0:   update_paths_r0 (rev_depth, off_l, off_s, n_elmts);
+                break;
+            case tools::polar_node_t::REP:      update_paths_rep(rev_depth, off_l, off_s, n_elmts);
+                break;
+            case tools::polar_node_t::RATE_1:   update_paths_r1 (rev_depth, off_l, off_s, n_elmts);
+                break;
+            case tools::polar_node_t::SPC:      update_paths_spc(rev_depth, off_l, off_s, n_elmts);
+                break;
+            default:
+                break;
+        }
+
+        normalize_scl_metrics<R>(this->metrics, this->L);
     }
 }
+
+
 
 
 
