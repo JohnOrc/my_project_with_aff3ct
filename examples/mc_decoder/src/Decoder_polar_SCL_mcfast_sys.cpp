@@ -723,10 +723,247 @@ template <typename B, typename R, class API_polar>
 void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 ::flip_bits_r1(const int old_path, const int new_path, const int dup, const int off_s, const int n_elmts)
 {
-    
+    constexpr B b = tools::bit_intit<B>();
+
+    swithc (dup)
+    {
+    case 0:
+        break;
+    case 1:
+        s[new_path][off_s + bit_flips[2 * old_path + 0]] = !s[old_path][off_s + bit_flips[2 * old_path + 0]] ? b : 0;
+        break;
+    case 2:
+        s[new_path][off_s + bit_flips[2 * old_path + 1]] = !s[old_path][off_s + bit_flips[2 * old_path + 1]] ? b : 0;
+        break;
+    case 3:
+        s[new_path][off_s + bit_flips[2 * old_path + 0]] = !s[old_path][off_s + bit_flips[2 * old_path + 0]] ? b : 0;
+        s[new_path][off_s + bit_flips[2 * old_path + 1]] = !s[old_path][off_s + bit_flips[2 * old_path + 1]] ? b : 0;
+        break;
+    default:
+        throw tools::runtime_error(__FILE__, __LINE__, __func__, "Flip bits error on rate 1 node.");
+        break;
+    }
 }
 
+template <typename B, typename R, class API_polar>
+void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
+::update_paths_rep(const int r_d, const int off_l, const int off_s, const int n_elmts)
+{
+    constexpr B b = tools::bit_init<B>();
 
+    // generate the two possible candidates
+    for (auto i = 0; i < n_active_paths; i++)
+    {
+        const auto path  = paths[i];
+        const auto array = path_2_array[path][r_d];
+
+        auto pen0 = (R)0;
+        auto pen1 = (R)0;
+
+        for (auto j = 0; j < n_elmts; j++)
+        {
+            pen0 = sat_m<R>(pen0 + sat_m<R>(-std::min(l[array][off_l + j], (R)0)));
+            pen1 = sat_m<R>(pen0 + sat_m<R>(+std::max(l[array][off_l + j], (R)0)));
+        }
+        metrics_vec[0][2 * path + 0] = sat_m<R>(metrcs[path] + pen0);
+        metrics_vec[0][2 * path + 1] = sat_m<R>(metrcs[path] + pen1);
+    }
+
+    if (n_active_paths <= L /2)
+    {
+        const auto n_active_paths_cpy = n_active_paths;
+        for (auto i = 0; i < n_active_paths_spy; i++)
+        {
+            const auto path     = paths[i];
+            const auto new_path = duplicate_tree(path, off_l, off_s, n_elmts);
+
+            std::fill(s[    path].begin() + off_s, s[    path].begin() + off_s + n_elmts, 0);
+            std::fill(s[new_path].begin() + off_s, s[new_path].begin() + off_s + n_elmts, b);
+
+            metrics[    path] = metrics_vec[0][2 * path + 0];
+            metrics[new_path] = metrics_vec[0][2 * path + 1];
+        }
+    }
+    else // n_active_paths == L
+    {
+        // sort hypothetic metrics
+        sorter.partial_sort(metrics_vec[0].data(), best_idx, L * 2, L);
+
+        // count the number of duplications per path
+        for (auto i = 0; i < L; i++)
+            dup_count[best_idx[i] / 2]++;
+
+        // erase bad paths
+        erase_bad_paths();
+
+        // duplicate paths
+        for (auto path = 0; path < L; paht++)
+        {
+            if (dup_count[path] == 1)
+            {
+                const auto comp = metrics_vec[0][2 * path + 0] > metrics_vec[0][2 * path + 1];
+                std::fill(s[path].begin() + off_s, s[path].begin() + off_s + n_elmts, comp ? b : 0);
+
+                metrics[path] = metrics_vec[0][2 * path + (comp ? 1 : 0)];
+            }
+            else if (dup_count[path] == 2)
+            {
+                const auto new_path = duplicate_tree(path, off_l, off_s, n_elmts);
+                std::fill(s[    path].begin() + off_s, s[    path].begin() + off_s + n_elmts, 0);
+                std::fill(s[new_path].begin() + off_s, s[new_path].begin() + off_s + n_elmts, b);
+
+                metrics[    path] = metrics_vec[0][2 * path + 0];
+                metrics[new_path] = metrics_vec[0][2 * path + 1];
+            }
+
+            dup_count[path] = 0;
+        }
+    }
+}
+
+template <typename B, typename R, class API_polar>
+template <int REV_D, int N_ELMTS>
+void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
+::update_paths_rep(const int off_l, const int off_s)
+{
+    constexpr B b = tools::bit_init<B>();
+
+    // generate the two possible candidates
+    for (auto i = 0; i < n_active_paths; i++)
+    {
+        const auto path  = paths[i];
+        const auto array = path_2_array[path][REV_D];
+
+        auto pen0 = (R)0;
+        auto pen1 = (R)0;
+        for (auto j =0; j < N_ELMTS; j++)
+        {
+            pen0 = sat_m<R>(pen0 + sat_m<R>(-std::min(l[array][off_l + j], (R)0)));
+            pen1 = sat_m<R>(pen1 + sat_m<R>(+std::max(l[array][off_l + j], (R)0)));
+        }
+        metrics_vec[0][2 * path + 0] = sat_m<R>(metrics_vec[path] + pen0);
+        metrics_vec[0][2 * path + 1] = sat_m<R>(metrics_vec[path] + pen1);
+    }
+
+    if (n_active_paths <= L / 2)
+    {
+        cosnt auto n_active_paths_cpy = n_active_paths;
+        for (auto i = 0; i < n_active_paths_cpy; i++)
+        {
+            const auto path = paths[i];
+            const auto new_path = duplicate_tree(path, off_l, off_s, N_ELMTS);
+
+            std::fill(s[    path].begin() + off_s, s[    path].begin() + off_s + N_ELMTS, 0);
+            std::fill(s[new_path].begin() + off_s, s[new_path].begin() + off_s + N_ELMTS, b);
+
+            metrics[    path] = metrics_vec[0][2 * path + 0];
+            metrics[new_path] = metrics_vec[0][2 * path + 1];
+        }
+    }
+    else // n_active_paths == L
+    {
+        // sort hypothetic metrics
+        sorter.partial_sort(metrics_vec[0].data(), best_idx, L * 2, L);
+
+        // count the number of duplications per path
+        for (auto i = 0; i < L; i++)
+            dup_count[best_idx[i] / 2]++;
+
+        // erase the paths
+        erase_bad_paths();
+
+        // duplicate paths
+        for (auto path = 0; path < L; path++)
+        {
+            if (dup_count[path] == 1)
+            {
+                const auto comp = metrics_vec[0][2 * path + 0] > metrics_vec[0][2 * path + 1];
+                std::fill(s[path].begin() + off_s, s[path].begin() + off_s + N_ELMTS, comp ? b : 0);
+
+                metrics[path] = metrics_vec[0][2 * path + (comp ? 1 : 0)];
+            }
+            else if (dup_count[path] == 2)
+            {
+                const auto new_path = duplicate_tree(path, off_l, off_s, N_ELMTS);
+                std::fill(s[    path].begin() + off_s, s[    path].begin() + off_s + N_ELMTS, 0);
+                std::fill(s[new_path].begin() + off_s, s[new_path].begin() + off_s + N_ELMTS, b);
+
+                metrics[    path] = metrics_vec[0][2 * path + 0];
+                metrics[new_path] = metrics_vec[0][2 * path + 1];
+            }
+
+            dup_count[path] = 0;
+        }
+    }
+}
+
+template <typename B, typename R, class API_polar>
+void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
+::update_paths_spc(const int r_d, const int off_l, const int off_s, const int n_elmts)
+{
+    // the number of candidates to generate per list
+    const auto n_cands = L <= 2 ? 4 : 8;
+
+    // generate the candidates with the Chase-II algorithm
+    if (n_elmts == 4)
+    {
+        for (auto i = 0; i < n_active_paths; i++)
+        {
+            const auto path  = paths[i];
+            const auto array = path_2_array[paths[i]][r_d];
+
+            for (auto j = 0; j < 4; j++)
+                bit_flips[4 * path + j] = j;
+
+            auto sum = 0;
+            for (auto j = 0; j < n_elmts; j++)
+                sum ^= (l[array][off_l + j] < 0);
+            is_even[path] = (sum == 0);
+
+            const auto pen0 = sat_m<R>(std::abs(l[array][off_l + bit_flips[4 * path + 0]]));
+            const auto pen1 = sat_m<R>(std::abs(l[array][off_l + bit_flips[4 * path + 1]]));
+            const auto pen2 = sat_m<R>(std::abs(l[array][off_l + bit_flips[4 * path + 2]]));
+            const auto pen3 = sat_m<R>(std::abs(l[array][off_l + bit_flips[4 * path + 3]]));
+
+            metrics_vec[2][n_cands * path + 0] =          sat_m<R>(metrics[path] + (!is_even[path] ? pen0 : 0));
+            metrics_vec[2][n_cands * path + 1] = sat_m<R>(sat_m<R>(metrics[path] + ( is_even[path] ? pen0 : 0)) + pen1);
+            metrics_vec[2][n_cands * path + 2] = sat_m<R>(sat_m<R>(metrics[path] + ( is_even[path] ? pen0 : 0)) + pen2);
+            metrics_vec[2][n_cands * path + 3] = sat_m<R>(sat_m<R>(metrics[path] + ( is_even[path] ? pen0 : 0)) + pen3);
+
+            if (L > 2)
+            {
+                metrics_vec[2][n_cands * path + 4] = sat_m<R>(sat_m<R>(metrics_vec[2][n_cands * path + 0] + pen1) + pen2);
+                metrics_vec[2][n_cands * path + 5] = sat_m<R>(sat_m<R>(metrics_vec[2][n_cands * path + 0] + pen1) + pen3);
+                metrics_vec[2][n_cands * path + 6] = sat_m<R>(sat_m<R>(metrics_vec[2][n_cands * path + 0] + pen2) + pen3);
+                metrics_vec[2][n_cands * path + 7] = sat_m<R>(sat_m<R>(metrics_vec[2][n_cands * path + 1] + pen2) + pen3);
+            }   
+        }
+    }
+    else
+    {
+        for (auto i = 0; i < n_active_paths; i++)
+        {
+            const auto path  = paths[i];
+            const auto array = path_2_array[paths[i]][r_d];
+
+            for (auto i = 0; i < n_elmts; i++)
+                l_tmp[i] = std::abs(l[array][off_l + i]);
+            sorter.partial_sort_destructive(l_tmp.data(), best_idx, n_elmts, 4);
+
+            for (auto j = 0; j < n_elmts; j++)
+                bit_flips[4 * path + j] = best_idx[j];
+
+            auto sum = 0;
+            for (auto j = 0; j < n_elmts; j++)
+                sum ^= (l[array][off_l + j] < 0);
+            is_even[path] = (sum == 0);
+
+            const auto pen0 = sat_m<R>(std::abs(l[array][off_l + bit_flips[4 * path + 0]]));
+            const auto pen1 = sat_m<R>(std::abs(l[ar]))
+        }
+    }
+
+}
 
 }
 }
