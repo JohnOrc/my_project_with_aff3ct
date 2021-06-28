@@ -8,13 +8,14 @@
 using namespace aff3ct;
 
 #include "codec_polar.hpp"
+#include "Decoder_polar_SCL_mcfast_sys.cpp"
 
 struct params
 {
-	int   K         = 128;     // number of information bits
-	int   N         = 256;     // codeword size
+	int   K         =  32;     // number of information bits
+	int   N         =  64;     // codeword size
 	int   L 		=   8;     // list size of SCL 
-	int   fe        =  10;     // number of frame errors
+	int   fe        =   1;     // number of frame errors
 	int   seed      =   0;     // PRNG seed for the AWGN channel
 	float ebn0_min  =   3.00f; // minimum SNR value
 	float ebn0_max  =   3.01f; // maximum SNR value
@@ -29,7 +30,7 @@ struct modules
 	std::unique_ptr<module::Encoder_polar_sys<>>      encoder;
 	std::unique_ptr<module::Modem_BPSK<>>             modem;
 	std::unique_ptr<module::Channel_AWGN_LLR<>>       channel;
-	std::unique_ptr<module::Decoder_polar_SCL_fast_sys<>> decoder;
+	std::unique_ptr<module::Decoder_polar_SCL_mcfast_sys<>>   decoder;
 	std::unique_ptr<module::Monitor_BFER<>>           monitor;
 	std::vector<const module::Module*>                list; // list of module pointers declared in this structure
 };
@@ -59,6 +60,7 @@ int main(int argc, char** argv)
 	params  p; init_params (p   ); // create and initialize the parameters defined by the user
 	modules m; init_modules(p, m); // create and initialize the modules
 	utils   u; init_utils  (m, u); // create and initialize the utils
+
 
 	// display the legend in the terminal
 	u.terminal->legend();
@@ -144,7 +146,7 @@ void init_modules(const params &p, modules &m)
 	m.encoder = std::unique_ptr<module::Encoder_polar_sys     <>>(new module::Encoder_polar_sys     <>(p.K, p.N, frozen_bits ));
 	m.modem   = std::unique_ptr<module::Modem_BPSK            <>>(new module::Modem_BPSK            <>(p.N      ));
 	m.channel = std::unique_ptr<module::Channel_AWGN_LLR      <>>(new module::Channel_AWGN_LLR      <>(p.N      ));
-	m.decoder = std::unique_ptr<module::Decoder_polar_SCL_fast_sys<>>(new module::Decoder_polar_SCL_fast_sys<>(p.K, p.N, p.L, frozen_bits  ));
+	m.decoder = std::unique_ptr<module::Decoder_polar_SCL_mcfast_sys  <>>(new module::Decoder_polar_SCL_mcfast_sys  <>(p.K, p.N, p.L, frozen_bits));
 	m.monitor = std::unique_ptr<module::Monitor_BFER          <>>(new module::Monitor_BFER          <>(p.K, p.fe));
 	m.channel->set_seed(p.seed);
 

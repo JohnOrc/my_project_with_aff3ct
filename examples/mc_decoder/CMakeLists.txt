@@ -10,11 +10,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Specify bin path
 set (EXECUTABLE_OUTPUT_PATH bin/)
 
+
+
 # Create the executable from sources
 add_executable(main ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
                     ${CMAKE_CURRENT_SOURCE_DIR}/src/codec_polar.hpp
-                    ${CMAKE_CURRENT_SOURCE_DIR}/src/Decoder_polar_SCL_fast_sys.hpp
-                    ${CMAKE_CURRENT_SOURCE_DIR}/src/Decoder_polar_SCL_fast_sys.cpp
+                    ${CMAKE_CURRENT_SOURCE_DIR}/src/Decoder_polar_SCL_mcfast_sys.hpp
+                    ${CMAKE_CURRENT_SOURCE_DIR}/src/Decoder_polar_SCL_mcfast_sys.cpp
                     )
 
 # Link with the "Threads library (required to link with AFF3CT after)

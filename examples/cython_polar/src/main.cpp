@@ -7,7 +7,8 @@ using namespace aff3ct;
 
 #include "codec_polar.hpp"
 
-template <typename T> void print_vector(std::vector<T> vec) {
+template <typename T> 
+void print_vector(std::vector<T> vec) {
   std::for_each(vec.begin(), vec.end(),
                 [&](const T i) { std::cout << i << ' '; });
   std::cout << std::endl;
