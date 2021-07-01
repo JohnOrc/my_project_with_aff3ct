@@ -1,10 +1,10 @@
 /*!
  * \file
- * \brief Class module::Decoder_polar_SCL_mcfast_sys.
+ * \brief Class module::Decoder_polar_SCL_oldfast_sys.
  */
-
 #include <vector>
-#include <mipp.h>
+#include <mipp.h> 
+
 #include <aff3ct.hpp>
 
 namespace aff3ct
@@ -17,7 +17,7 @@ template <typename B = int, typename R = float,
                                                                tools::g0_LLR<  R>,
                                                                tools::h_LLR <B,R>,
                                                                tools::xo_STD<B  >>>
-class Decoder_polar_SCL_mcfast_sys : public Decoder_SIHO<B,R>, public tools::Interface_get_set_frozen_bits
+class Decoder_polar_SCL_oldfast_sys : public Decoder_SIHO<B,R>, public tools::Interface_get_set_frozen_bits
 {
 protected:
 	const int                         m;              // graph depth
@@ -32,7 +32,6 @@ protected:
 	std::vector<std ::vector<R   >>   metrics_vec;    // list of candidate metrics to be sorted
 	            std ::vector<int >    dup_count;      // number of duplications of a path, at updating time
 	            std ::vector<int >    bit_flips;      // index of the bits to be flipped
-				std ::vector<int >	  bit_flips_r1;   // index of the bits to be flipped of Rate-1 node
 	            std ::vector<bool>    is_even;        // used to store parity of a spc node
 
 	int                               best_path;
@@ -48,15 +47,15 @@ protected:
 	mipp::vector<R>                   l_tmp;
 
 public:
-	Decoder_polar_SCL_mcfast_sys(const int& K, const int& N, const int& L, const std::vector<bool>& frozen_bits);
+	Decoder_polar_SCL_oldfast_sys(const int& K, const int& N, const int& L, const std::vector<bool>& frozen_bits);
 
-	Decoder_polar_SCL_mcfast_sys(const int& K, const int& N, const int& L, const std::vector<bool>& frozen_bits,
+	Decoder_polar_SCL_oldfast_sys(const int& K, const int& N, const int& L, const std::vector<bool>& frozen_bits,
 	                           const std::vector<tools::Pattern_polar_i*> &polar_patterns,
 	                           const int idx_r0, const int idx_r1);
 
-	virtual ~Decoder_polar_SCL_mcfast_sys();
+	virtual ~Decoder_polar_SCL_oldfast_sys();
 
-	virtual Decoder_polar_SCL_mcfast_sys<B,R,API_polar>* clone() const;
+	virtual Decoder_polar_SCL_oldfast_sys<B,R,API_polar>* clone() const;
 
 	virtual void set_frozen_bits(const std::vector<bool>& frozen_bits);
 	virtual const std::vector<bool>& get_frozen_bits() const;
@@ -95,5 +94,4 @@ private:
 };
 }
 }
-
 

@@ -3,22 +3,25 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <glog/logging.h>
 
 #include <aff3ct.hpp>
 using namespace aff3ct;
 
 #include "codec_polar.hpp"
 #include "Decoder_polar_SCL_mcfast_sys.cpp"
+#include "Decoder_polar_SCL_oldfast_sys.cpp"
+
 
 struct params
 {
-	int   K         =  32;     // number of information bits
+	int   K         =  16;     // number of information bits
 	int   N         =  64;     // codeword size
 	int   L 		=   8;     // list size of SCL 
-	int   fe        =   1;     // number of frame errors
+	int   fe        =  100;     // number of frame errors
 	int   seed      =   0;     // PRNG seed for the AWGN channel
-	float ebn0_min  =   3.00f; // minimum SNR value
-	float ebn0_max  =   3.01f; // maximum SNR value
+	float ebn0_min  =   2.00f; // minimum SNR value
+	float ebn0_max  =   2.01f; // maximum SNR value
 	float ebn0_step =   1.00f; // SNR step
 	float R;                   // code rate (R=K/N)
 };
@@ -46,6 +49,10 @@ void init_utils(const modules &m, utils &u);
 
 int main(int argc, char** argv)
 {
+	google::InitGoogleLogging(argv[0]);
+
+	FLAGS_log_dir = "./log";
+
 	// get the AFF3CT version
 	const std::string v = "v" + std::to_string(tools::version_major()) + "." +
 	                            std::to_string(tools::version_minor()) + "." +
@@ -93,8 +100,8 @@ int main(int argc, char** argv)
 		u.terminal->start_temp_report();
 
 		// run the simulation chain
-		while (!m.monitor->fe_limit_achieved() && !u.terminal->is_interrupt())
-		{
+//		while (!m.monitor->fe_limit_achieved() && !u.terminal->is_interrupt())
+//		{
 			(*m.source )[src::tsk::generate    ].exec();
 			(*m.encoder)[enc::tsk::encode      ].exec();
 			(*m.modem  )[mdm::tsk::modulate    ].exec();
@@ -102,7 +109,8 @@ int main(int argc, char** argv)
 			(*m.modem  )[mdm::tsk::demodulate  ].exec();
 			(*m.decoder)[dec::tsk::decode_siho ].exec();
 			(*m.monitor)[mnt::tsk::check_errors].exec();
-		}
+//		}
+		
 
 		// display the performance (BER and FER) in the terminal
 		u.terminal->final_report();
@@ -119,6 +127,8 @@ int main(int argc, char** argv)
 	std::cout << "#" << std::endl;
 	tools::Stats::show(m.list, true);
 	std::cout << "# End of the simulation" << std::endl;
+
+	google::ShutdownGoogleLogging();
 
 	return 0;
 }

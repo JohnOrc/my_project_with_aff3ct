@@ -23,6 +23,24 @@
         "utility": "cpp",
         "typeindex": "cpp",
         "bitset": "cpp",
-        "limits": "cpp"
+        "limits": "cpp",
+        "cassert": "cpp",
+        "cctype": "cpp",
+        "cerrno": "cpp",
+        "cfloat": "cpp",
+        "climits": "cpp",
+        "clocale": "cpp",
+        "cmath": "cpp",
+        "complex": "cpp",
+        "csignal": "cpp",
+        "cstdarg": "cpp",
+        "cstddef": "cpp",
+        "cstdio": "cpp",
+        "cstdlib": "cpp",
+        "cstring": "cpp",
+        "ctime": "cpp",
+        "cwctype": "cpp",
+        "numeric": "cpp",
+        "ratio": "cpp"
     }
 }
