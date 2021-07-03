@@ -11,7 +11,7 @@ Compile the code on Linux/MacOS/MinGW:
 
 	$ mkdir build
 	$ cd build
-	$ cmake .. -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-funroll-loops -march=native"
+	$ cmake .. -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-funroll-loops -march=native"
 	$ make
 
 The source code of this mini project is in `src/main.cpp`.

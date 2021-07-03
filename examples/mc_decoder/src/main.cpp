@@ -12,6 +12,9 @@ using namespace aff3ct;
 #include "Decoder_polar_SCL_mcfast_sys.cpp"
 #include "Decoder_polar_SCL_oldfast_sys.cpp"
 
+#define USEMC 1
+#define ONE 1
+
 
 struct params
 {
@@ -33,7 +36,11 @@ struct modules
 	std::unique_ptr<module::Encoder_polar_sys<>>      encoder;
 	std::unique_ptr<module::Modem_BPSK<>>             modem;
 	std::unique_ptr<module::Channel_AWGN_LLR<>>       channel;
+	#if (USEMC > 0)
 	std::unique_ptr<module::Decoder_polar_SCL_mcfast_sys<>>   decoder;
+	#else
+	std::unique_ptr<module::Decoder_polar_SCL_oldfast_sys<>>   decoder;
+	#endif
 	std::unique_ptr<module::Monitor_BFER<>>           monitor;
 	std::vector<const module::Module*>                list; // list of module pointers declared in this structure
 };
@@ -99,7 +106,19 @@ int main(int argc, char** argv)
 		// display the performance (BER and FER) in real time (in a separate thread)
 		u.terminal->start_temp_report();
 
+		#if (ONE > 0)
 		// run the simulation chain
+		while (!m.monitor->fe_limit_achieved() && !u.terminal->is_interrupt())
+		{
+			(*m.source )[src::tsk::generate    ].exec();
+			(*m.encoder)[enc::tsk::encode      ].exec();
+			(*m.modem  )[mdm::tsk::modulate    ].exec();
+			(*m.channel)[chn::tsk::add_noise   ].exec();
+			(*m.modem  )[mdm::tsk::demodulate  ].exec();
+			(*m.decoder)[dec::tsk::decode_siho ].exec();
+			(*m.monitor)[mnt::tsk::check_errors].exec();
+		}
+		#else
 //		while (!m.monitor->fe_limit_achieved() && !u.terminal->is_interrupt())
 //		{
 			(*m.source )[src::tsk::generate    ].exec();
@@ -110,6 +129,7 @@ int main(int argc, char** argv)
 			(*m.decoder)[dec::tsk::decode_siho ].exec();
 			(*m.monitor)[mnt::tsk::check_errors].exec();
 //		}
+		#endif
 		
 
 		// display the performance (BER and FER) in the terminal
@@ -156,7 +176,11 @@ void init_modules(const params &p, modules &m)
 	m.encoder = std::unique_ptr<module::Encoder_polar_sys     <>>(new module::Encoder_polar_sys     <>(p.K, p.N, frozen_bits ));
 	m.modem   = std::unique_ptr<module::Modem_BPSK            <>>(new module::Modem_BPSK            <>(p.N      ));
 	m.channel = std::unique_ptr<module::Channel_AWGN_LLR      <>>(new module::Channel_AWGN_LLR      <>(p.N      ));
+	#if (USEMC > 0)
 	m.decoder = std::unique_ptr<module::Decoder_polar_SCL_mcfast_sys  <>>(new module::Decoder_polar_SCL_mcfast_sys  <>(p.K, p.N, p.L, frozen_bits));
+	#else
+	m.decoder = std::unique_ptr<module::Decoder_polar_SCL_oldfast_sys  <>>(new module::Decoder_polar_SCL_oldfast_sys  <>(p.K, p.N, p.L, frozen_bits));
+	#endif
 	m.monitor = std::unique_ptr<module::Monitor_BFER          <>>(new module::Monitor_BFER          <>(p.K, p.fe));
 	m.channel->set_seed(p.seed);
 
