@@ -558,7 +558,6 @@ template <typename B, typename R, class API_polar>
 void Decoder_polar_SCL_oldfast_sys<B,R,API_polar>
 ::update_paths_r1(const int r_d, const int off_l, const int off_s, const int n_elmts)
 {
-	DLOG(INFO) << "r1 length = " << n_elmts;
 
 	if (r_d == 0)
 		update_paths_rep(r_d, off_l, off_s, n_elmts);
@@ -591,17 +590,14 @@ void Decoder_polar_SCL_oldfast_sys<B,R,API_polar>
 				const auto path  = paths[i];
 				const auto array = path_2_array[path][r_d];
 
-				DLOG(INFO) << "path = " << path << " array = " << array;
 
 				for (auto j = 0; j < n_elmts; j++)
 				{
 					l_tmp[j] = std::abs(l[array][off_l + j]);
-					DLOG(INFO) << "l_tmp = " << l_tmp[j];
 				}
 
 				sorter.partial_sort_destructive(l_tmp.data(), best_idx, n_elmts, 2);
 
-				DLOG(INFO) << "idx " << best_idx[0] << best_idx[1];
 
 				bit_flips[2 * path +0] = best_idx[0];
 				bit_flips[2 * path +1] = best_idx[1];
@@ -609,7 +605,6 @@ void Decoder_polar_SCL_oldfast_sys<B,R,API_polar>
 				const auto pen0 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path +0]]));
 				const auto pen1 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path +1]]));
 
-				DLOG(INFO) << "pen " << pen0 << " " << pen1;
 
 				metrics_vec[1][4 * path +0] =          metrics       [    path   ];
 				metrics_vec[1][4 * path +1] = sat_m<R>(metrics       [    path   ] + pen0);
@@ -644,15 +639,8 @@ void Decoder_polar_SCL_oldfast_sys<B,R,API_polar>
 			flip_bits_r1(path, new_path, dup, off_s, n_elmts);
 			metrics[new_path] = metrics_vec[1][best_idx[i]];
 
-			DLOG(INFO) << "pm = " << metrics[new_path];
 
 			dup_count[path]--;
-
-			DLOG(INFO) << "path = " << path << " old_p = " << new_path;
-			DLOG(INFO) << s[new_path][off_s + 0];
-			DLOG(INFO) << s[new_path][off_s + 1];
-			DLOG(INFO) << s[new_path][off_s + 2];
-			DLOG(INFO) << s[new_path][off_s + 3];
 		}
 	}
 }
@@ -747,7 +735,6 @@ void Decoder_polar_SCL_oldfast_sys<B,R,API_polar>
 {
 	constexpr B b = tools::bit_init<B>();
 
-	DLOG(INFO) << " dup = " << dup;
 
 	switch (dup)
 	{
