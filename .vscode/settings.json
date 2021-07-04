@@ -41,6 +41,15 @@
         "ctime": "cpp",
         "cwctype": "cpp",
         "numeric": "cpp",
-        "ratio": "cpp"
+        "ratio": "cpp",
+        "memory_resource": "cpp",
+        "fstream": "cpp",
+        "iostream": "cpp",
+        "shared_mutex": "cpp",
+        "sstream": "cpp",
+        "string_view": "cpp",
+        "regex": "cpp",
+        "typeinfo": "cpp",
+        "algorithm": "cpp"
     }
 }

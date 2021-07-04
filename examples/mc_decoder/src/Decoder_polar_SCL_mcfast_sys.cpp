@@ -104,7 +104,7 @@ Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 	}
 
 	metrics_vec[0].resize(L * 2);
-	metrics_vec[1].resize(L * 13); // L * |C|
+	metrics_vec[1].resize(L * 16); // L * |C|
 	metrics_vec[2].resize((L <= 2 ? 4 : 8) * L);
 }
 
@@ -186,7 +186,7 @@ Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 	}
 
 	metrics_vec[0].resize(L * 2);
-	metrics_vec[1].resize(L * 13);
+	metrics_vec[1].resize(L * 16);
 	metrics_vec[2].resize((L <= 2 ? 4 : 8) * L);
 }
 
@@ -562,7 +562,6 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 {
 	DLOG(INFO) << "r1 length = " << n_elmts;
 
-
 	if (r_d == 0)
 	{
 		update_paths_rep(r_d, off_l, off_s, n_elmts);
@@ -658,9 +657,16 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 			// L first of the lists are the best paths
 			const auto n_list = (n_active_paths * 10 >= L) ? L : n_active_paths * 10;
 
+			for (auto j = n_active_paths * 10; j < n_active_paths * 16; j++)
+				metrics_vec[1][j] = std::numeric_limits<R>::max();
+
 			DLOG(INFO) << "n_list = " << n_list;
 
-			sorter.partial_sort(metrics_vec[1].data(), best_idx, n_active_paths * 10, n_list);
+			DLOG(INFO) << "[ 7 ] = " << metrics_vec[1][70];
+			DLOG(INFO) << "n_active_paths = " << n_active_paths;
+			DLOG(INFO) << "n_list = " << n_list;
+
+			sorter.partial_sort(metrics_vec[1].data(), best_idx, n_active_paths * 16, n_list);
 
 			DLOG(INFO) << "idx = " << best_idx[0] << " " << best_idx[1] << " " << best_idx[2] << " " << best_idx[3];
 			DLOG(INFO) << "idx = " << best_idx[4] << " " << best_idx[5] << " " << best_idx[6] << " " << best_idx[7];
@@ -683,7 +689,16 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 				const auto new_path = (dup_count[path] > 1) ? duplicate_tree(path, off_l, off_s, n_elmts) : path;
 				flip_bits_r1(path, new_path, dup, off_s, n_elmts);
 				metrics[new_path] = metrics_vec[1][best_idx[i]];
+
+				DLOG(INFO) << "pm = " << metrics[new_path];
+
 				dup_count[path]--;
+
+				DLOG(INFO) << "path = " << path << " old_p = " << new_path;
+				DLOG(INFO) << s[new_path][off_s + 0];
+				DLOG(INFO) << s[new_path][off_s + 1];
+				DLOG(INFO) << s[new_path][off_s + 2];
+				DLOG(INFO) << s[new_path][off_s + 3];
 			}
 		}
 		else                    // n_elmts >= 8
@@ -854,6 +869,8 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 	if (n_elmts >= 8)
 		n_flip_bits = 7;
 
+	DLOG(INFO) << n_flip_bits << " " << dup;
+
 	switch (dup)
 	{
 	case 0:
@@ -913,6 +930,7 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 {
 	constexpr B b = tools::bit_init<B>();
 
+	DLOG(INFO) << "rep length = " << n_elmts;
 	// generate the two possible candidates
 	for (auto i = 0; i < n_active_paths; i++)
 	{
@@ -1065,6 +1083,7 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 	// the number of candidates to generate per list
 	const auto n_cands = L <= 2 ? 4 : 8;
 
+	DLOG(INFO) << "spc length = " << n_elmts;
 	// generate the candidates with the Chase-II algorithm
 	if (n_elmts == 4)
 	{

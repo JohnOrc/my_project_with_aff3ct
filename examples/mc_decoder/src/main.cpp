@@ -13,7 +13,7 @@ using namespace aff3ct;
 #include "Decoder_polar_SCL_oldfast_sys.cpp"
 
 #define USEMC 1
-#define ONE 1
+#define ONE 0
 
 
 struct params
@@ -106,7 +106,7 @@ int main(int argc, char** argv)
 		// display the performance (BER and FER) in real time (in a separate thread)
 		u.terminal->start_temp_report();
 
-		#if (ONE > 0)
+		#if (ONE == 0)
 		// run the simulation chain
 		while (!m.monitor->fe_limit_achieved() && !u.terminal->is_interrupt())
 		{
