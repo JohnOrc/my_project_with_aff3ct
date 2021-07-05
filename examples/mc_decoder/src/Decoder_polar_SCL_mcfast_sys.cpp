@@ -7,6 +7,7 @@
 #include <string>
 #include <limits>
 #include <cmath>
+#include <queue>
 #include <glog/logging.h>
 
 #include "Decoder_polar_SCL_mcfast_sys.hpp"
@@ -587,7 +588,8 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 			// L first of the lists are the best paths
 			const auto n_list = (n_active_paths * 4 >= L) ? L : n_active_paths * 4;
 
-			sorter.partial_sort(metrics_vec[1].data(), best_idx, n_active_paths * 4, n_list);
+			// sorter.partial_sort(metrics_vec[1].data(), best_idx, n_active_paths * 4, n_list);
+			_partial_sort(metrics_vec[1].data(), best_idx, n_active_paths * 4, n_list);
 
 			// count the number of duplications per path, count which old_path survive
 			for (auto i = 0; i < n_list; i++)
@@ -649,7 +651,8 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 			for (auto j = n_active_paths * 10; j < n_active_paths * 16; j++)
 				metrics_vec[1][j] = std::numeric_limits<R>::max();
 
-			sorter.partial_sort(metrics_vec[1].data(), best_idx, n_active_paths * 16, n_list);
+			// sorter.partial_sort(metrics_vec[1].data(), best_idx, n_active_paths * 16, n_list);
+			_partial_sort(metrics_vec[1].data(), best_idx, n_active_paths * 16, n_list);
 
 			// count the number of duplications per path, count which old_path survive
 			for (auto i = 0; i < n_list; i++)
@@ -721,7 +724,8 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 			for (auto j = n_active_paths * 13; j < n_active_paths * 16; j++)
 							metrics_vec[1][j] = std::numeric_limits<R>::max();
 
-			sorter.partial_sort(metrics_vec[1].data(), best_idx, n_active_paths * 16, n_list);
+			// sorter.partial_sort(metrics_vec[1].data(), best_idx, n_active_paths * 16, n_list);
+			_partial_sort(metrics_vec[1].data(), best_idx, n_active_paths * 16, n_list);
 
 			// count the number of duplications per path, count which old_path survive
 			for (auto i = 0; i < n_list; i++)
@@ -805,10 +809,9 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 			for (auto j = 0; j < 4; j++)
 				metrics_vec[1][4 * paths[i] +j] = std::numeric_limits<R>::max();
 
-		// L first of the lists are the L best paths
+		// L first of the lists are the L best paths		
 		const auto n_list = (n_active_paths * 4 >= L) ? L : n_active_paths * 4;
 		sorter.partial_sort(metrics_vec[1].data(), best_idx, L * 4, n_list);
-
 		// count the number of duplications per path
 		for (auto i = 0; i < n_list; i++)
 			dup_count[best_idx[i] / 4]++;
@@ -1178,7 +1181,6 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 
 			for (auto j = 0; j < 4; j++)
 				bit_flips[4 * path +j] = j;
-
 			auto sum = 0;
 			for (auto j = 0; j < N_ELMTS; j++)
 				sum ^= (l[array][off_l +j] < 0);
@@ -1409,6 +1411,51 @@ int Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 	std::copy(s[old_path].begin(), s[old_path].begin() + off_s + n_elmts, s[new_path].begin());
 
 	return new_path;
+}
+
+template <typename B, typename R, class API_polar>
+void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
+::_partial_sort(const R* values, std::vector<int> &pos, int n_elmts, int k)
+{
+    struct Node
+    {
+        float val;
+        int idx;
+        Node(float a=0, int b=0):
+            val(a), idx(b) {}
+    };
+
+    struct cmp
+    {
+        bool operator()(Node a, Node b)
+        {
+            return a.val < b.val;
+        }
+    };
+
+    std::priority_queue<Node, std::vector<Node>, cmp> p;
+
+    for (int i = 0; i < k; ++i)
+    {
+        p.push(Node(values[i], i));
+    } 
+
+    for (int i = k; i < n_elmts; ++i)
+    {
+        if (p.top().val > values[i])
+        {
+            p.pop();
+            p.push(Node(values[i], i));
+        }
+    }
+
+    pos.resize(n_elmts);
+
+    for (int i = k-1; i >= 0; --i)
+    {
+        pos[i] = p.top().idx;
+        p.pop();
+    }
 }
 }
 }

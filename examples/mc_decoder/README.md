@@ -91,54 +91,6 @@ Run and debug
 
 * * *
 
-## Decoder_polar_SCL_mcfast_sys: functions
-
-### Decoder_polar_SCL_mcfast_sys: constructor
-
-### ~Decoder_polar_SCL_mcfast_sys
-
-### clone
-
-### set_frozen_bits
-
-### get_frozen_bits
-
-### init_buffers
-
-### _decode
-
-### _decode_siho
-
-### _decode_siho_cw
-
-### recursive_decode
-
-### _store
-
-### _store_cw
-
-### update_paths_r0
-
-### update_paths_r1
-
-### flip_bits_r1
-
-### update_paths_rep
-
-### update_paths_spc
-
-### flip_bits_spc
-
-### delete_path
-
-### select_best_path
-
-### up_ref_array_idx
-
-### erase_bad_paths
-
-### duplicate_tree
-
 
 # add glog
 > git@github.com:google/glog.git

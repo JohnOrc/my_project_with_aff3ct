@@ -67,6 +67,7 @@ protected:
 	        int  _decode_siho_cw(const R *Y_N, B *V_N, const size_t frame_id);
 	virtual void _store         (              B *V_K                       ) const;
 	virtual void _store_cw      (              B *V_N                       ) const;
+	virtual void _partial_sort  (const R *values, std::vector<int> &pos, int n_elmts, int k);
 
 	inline void recursive_decode(const R *Y_N, const int off_l, const int off_s, const int rev_depth, int &node_id);
 
@@ -92,6 +93,7 @@ private:
 
 	inline void erase_bad_paths (                                                                        );
 	inline int  duplicate_tree  (const int old_path, const int off_l, const int off_s, const int n_elmts ); // return the new_path
+
 };
 }
 }
