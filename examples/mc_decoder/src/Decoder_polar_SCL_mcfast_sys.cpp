@@ -648,7 +648,7 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 
 			for (auto j = 0; j < n_elmts; j++) l_tmp[j] = std::abs(l[array][off_l + j]);
 			sorter.partial_sort_destructive(l_tmp.data(), best_idx, n_elmts, bits_num);
-			_update_vec(path, array, n_elmts, bits_num, off_l);	
+			_update_r1_vec(path, array, n_elmts, bits_num, off_l);	
 		}
 		const auto n_list = (n_active_paths * r1_mc_size[indice_r] >= L) ? L : n_active_paths * r1_mc_size[indice_r];
 
@@ -1341,6 +1341,7 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 			s[new_path][off_s + bit_flips_r1[bits_num * old_path +1]] = !s[old_path][off_s + bit_flips_r1[bits_num * old_path +1]] ? b : 0;
 			break;
 		default:
+			throw tools::runtime_error(__FILE__, __LINE__, __func__, "Flip bits error on rate 1 node.");
 			break;
 		}
 		break;
@@ -1363,6 +1364,7 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 			s[new_path][off_s + bit_flips_r1[bits_num * old_path +2]] = !s[old_path][off_s + bit_flips_r1[bits_num * old_path +2]] ? b : 0;
 			break;
 		default:
+			throw tools::runtime_error(__FILE__, __LINE__, __func__, "Flip bits error on rate 1 node.");
 			break;
 		}
 		break;
@@ -1432,7 +1434,7 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 
 template <typename B, typename R, class API_polar>
 void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
-::_update_vec(const int path, const int array, const int n_elmts, const int bits_num, const int off_l)
+::_update_r1_vec(const int path, const int array, const int n_elmts, const int bits_num, const int off_l)
 {
 	int c_num = r1_mc_size[(int)std::log2((n_elmts > L) ? L : n_elmts) - 1];
 	std ::vector<R> pen(bits_num);
@@ -1482,10 +1484,43 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 			}
 		}
 		break;
+	case 16:
+		metrics_vec[1][c_num * path + 0] =          metrics       [     path    ];         // empty
+		metrics_vec[1][c_num * path + 1] = sat_m<R>(metrics       [     path    ] + pen[0]); // e + a0
+		metrics_vec[1][c_num * path + 2] = sat_m<R>(metrics       [     path    ] + pen[1]); // e + a1
+		metrics_vec[1][c_num * path + 3] = sat_m<R>(metrics_vec[1][c_num * path + 1] + pen[1]); // e + a0 + a1
+		if (n_elmts >= 4)
+		{
+			metrics_vec[1][c_num * path + 4] = sat_m<R>(metrics       [     path    ] + pen[2]); // e + a2
+			metrics_vec[1][c_num * path + 5] = sat_m<R>(metrics_vec[1][c_num * path + 1] + pen[2]); // e + a0 + a2
+			metrics_vec[1][c_num * path + 6] = sat_m<R>(metrics_vec[1][c_num * path + 2] + pen[2]); // e + a1 + a2
+			metrics_vec[1][c_num * path + 7] = sat_m<R>(metrics       [     path    ] + pen[3]); // e + a3
+			metrics_vec[1][c_num * path + 8] = sat_m<R>(metrics_vec[1][c_num * path + 1] + pen[3]); // e + a0 + a3
+			metrics_vec[1][c_num * path + 9] = sat_m<R>(metrics_vec[1][c_num * path + 3] + pen[2]); // e + a0 + a1 + a2
+			metrics_vec[1][c_num * path +10] = sat_m<R>(metrics_vec[1][c_num * path + 3] + pen[3]); // e + a0 + a1 + a3
+			metrics_vec[1][c_num * path +11] = sat_m<R>(metrics_vec[1][c_num * path + 5] + pen[3]); // e + a0 + a2 + a3
+			metrics_vec[1][c_num * path +12] = sat_m<R>(metrics_vec[1][c_num * path + 6] + pen[3]); // e + a1 + a2 + a3
+			metrics_vec[1][c_num * path +12] = sat_m<R>(metrics_vec[1][c_num * path + 9] + pen[3]); // e + a0 + a1 + a2 + a3
+			if (n_elmts >= 8)
+			{
+				metrics_vec[1][c_num * path +10] = sat_m<R>(metrics       [     path    ] + pen[4]); // e + a4
+				metrics_vec[1][c_num * path +11] = sat_m<R>(metrics       [     path    ] + pen[5]); // e + a5
+				metrics_vec[1][c_num * path +12] = sat_m<R>(metrics       [     path    ] + pen[6]); // e + a6
+			}
+		}
+		break;
+	case 32:
+	case 64:
 	default:
 		// Chase-II
 		break;
 	}				
+}
+template <typename B, typename R, class API_polar>
+void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
+::_update_spc_vec(const int path, const int array, const int n_elmts, const int bits_num, const int off_l)
+{
+
 }
 }
 }

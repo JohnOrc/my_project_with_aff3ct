@@ -33,8 +33,10 @@ protected:
 	            std ::vector<int >    dup_count;      // number of duplications of a path, at updating time
 	            std ::vector<int >    bit_flips;      // index of the bits to be flipped
 				std ::vector<int >	  bit_flips_r1;   // index of the bits to be flipped of Rate-1 node
-	            std ::vector<int>     r1_mc_size;
-				std ::vector<int>     spc_mc_size;
+
+	            std ::vector<int>     r1_mc_size;  	  // sizes of r1 minimum combinations set
+				std ::vector<int>     spc_mc_size;	  // sizes of spc minimum combinations set
+
 	            std ::vector<bool>    is_even;        // used to store parity of a spc node
 
 	int                               best_path;
@@ -92,8 +94,10 @@ private:
 	inline void flip_bits_r1 (const int old_path, const int new_path, const int dup, const int off_s, const int n_elmts, const int bits_num);
 	inline void flip_bits_spc(const int old_path, const int new_path, const int dup, const int off_s, const int n_elmts);
 
-	void _partial_sort  (const R *values, std::vector<int> &pos, int n_elmts, int k);
-	void _update_vec    (const int path, const int array, const int n_elmts, const int bits_num, const int off_l);
+	void _partial_sort  (const R *values, std::vector<int> &pos, int n_elmts, int k); // path metric sort 
+	
+	void _update_r1_vec    (const int path, const int array, const int n_elmts, const int bits_num, const int off_l); // cal r1 path metrics according to CM
+	void _update_spc_vec    (const int path, const int array, const int n_elmts, const int bits_num, const int off_l); // cal spc path metrics according to CM
 
 	inline void erase_bad_paths (                                                                        );
 	inline int  duplicate_tree  (const int old_path, const int off_l, const int off_s, const int n_elmts ); // return the new_path
