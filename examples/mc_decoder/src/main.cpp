@@ -13,14 +13,14 @@ using namespace aff3ct;
 #include "Decoder_polar_SCL_oldfast_sys.cpp"
 
 #define USEMC 1
-#define ONE   1
+#define ONE   0
 
 
 struct params
 {
-	int   K         =  16;     // number of information bits
+	int   K         =  32;     // number of information bits
 	int   N         =  64;     // codeword size
-	int   L 		=   8;     // list size of SCL 
+	int   L 		=   2;     // list size of SCL 
 	int   fe        =  100;     // number of frame errors
 	int   seed      =   0;     // PRNG seed for the AWGN channel
 	float ebn0_min  =   2.00f; // minimum SNR value

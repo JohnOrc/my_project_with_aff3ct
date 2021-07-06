@@ -33,6 +33,8 @@ protected:
 	            std ::vector<int >    dup_count;      // number of duplications of a path, at updating time
 	            std ::vector<int >    bit_flips;      // index of the bits to be flipped
 				std ::vector<int >	  bit_flips_r1;   // index of the bits to be flipped of Rate-1 node
+	            std ::vector<int>     r1_mc_size;
+				std ::vector<int>     spc_mc_size;
 	            std ::vector<bool>    is_even;        // used to store parity of a spc node
 
 	int                               best_path;
@@ -67,7 +69,6 @@ protected:
 	        int  _decode_siho_cw(const R *Y_N, B *V_N, const size_t frame_id);
 	virtual void _store         (              B *V_K                       ) const;
 	virtual void _store_cw      (              B *V_N                       ) const;
-	virtual void _partial_sort  (const R *values, std::vector<int> &pos, int n_elmts, int k);
 
 	inline void recursive_decode(const R *Y_N, const int off_l, const int off_s, const int rev_depth, int &node_id);
 
@@ -88,8 +89,11 @@ protected:
 	        inline int  up_ref_array_idx(const int path, const int r_d); // return the array
 
 private:
-	inline void flip_bits_r1 (const int old_path, const int new_path, const int dup, const int off_s, const int n_elmts);
+	inline void flip_bits_r1 (const int old_path, const int new_path, const int dup, const int off_s, const int n_elmts, const int bits_num);
 	inline void flip_bits_spc(const int old_path, const int new_path, const int dup, const int off_s, const int n_elmts);
+
+	void _partial_sort  (const R *values, std::vector<int> &pos, int n_elmts, int k);
+	void _update_vec    (const int path, const int array, const int n_elmts, const int bits_num, const int off_l);
 
 	inline void erase_bad_paths (                                                                        );
 	inline int  duplicate_tree  (const int old_path, const int off_l, const int off_s, const int n_elmts ); // return the new_path
