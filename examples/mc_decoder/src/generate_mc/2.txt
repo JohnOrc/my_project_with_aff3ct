@@ -1,0 +1,17 @@
+metrics_vec[1][c_num * path + 0] = metrics [path]; // empty
+metrics_vec[1][c_num * path + 1] = sat_m<R>(metrics_vec[1][c_num * path + 0] + pen[0]); // e+a0
+
+
+
+switch( dup )
+{
+case 0:
+	// nothing to do
+	break;
+case 1:// e + a0 
+	s[new_path][off_s + bit_flips_r1[bits_num * old_path +0]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +0]] ? 0 : b;
+	break;
+default:
+	throw tools::runtime_error(__FILE__, __LINE__, __func__, "Flip bits error on rate 1 node.");
+	break;
+}
