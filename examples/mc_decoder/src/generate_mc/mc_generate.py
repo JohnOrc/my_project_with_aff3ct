@@ -180,9 +180,9 @@ def print_L_even(L, f):
     for i in range(m):
         mc_L += [[]]
 
-    mc_L[0].append([0,1])
-    print('L = 2')
-
+    if L == 2:
+        mc_L[0].append([0,1])
+        print('L = 2')
 
     if L >= 4:
         # 2 bits
@@ -193,13 +193,15 @@ def print_L_even(L, f):
                 if ans < L:
                     indice = ceil(log2(bits_num[-1] + 1))
                     mc_L[indice].append(bits_num)
-        print('L = 4')     
-    if L >= 8:
+        print('L = 4')    
+
+    if L == 8:
         # 4 bits
         bits_num = [0,1,2,3]
         indice = ceil(log2(bits_num[-1] + 1))
         mc_L[indice].append(bits_num)
         print('L = 8')
+
     if L >= 16:
         # 4 bits
         for i0 in range(L):
@@ -212,12 +214,15 @@ def print_L_even(L, f):
                             indice = ceil(log2(bits_num[-1] + 1))
                             mc_L[indice].append(bits_num)
         print('L = 16')
-    if L >= 32:
+
+    if L == 32:
         # 6 bits        
         bits_num = [0,1,2,3,4,5]
         indice = ceil(log2(bits_num[-1] + 1))
         mc_L[indice].append(bits_num)
         print('L = 32')
+
+    flag = False
     if L >= 64:
         # 6 bits
         for i0 in range(L):
@@ -227,18 +232,27 @@ def print_L_even(L, f):
                         for i4 in range(i3+1, L):
                             for i5 in range(i4+1, L):
                                 bits_num = [i0, i1, i2, i3, i4, i5]
-                                ans = leqNum(bits_num, L)
+                                ans = leqNumEven(bits_num, L)
                                 if ans < L:
                                     indice = ceil(log2(bits_num[-1] + 1))
                                     mc_L[indice].append(bits_num)
                                     if bits_num[0] == 1:
+                                        flag = True
                                         break
+                                else:
+                                    break
+                            if flag:
+                                break
+                        if flag:
                             break
+                    if flag:
                         break
+                if flag:
                     break
+            if flag:
                 break
-            break
         print('L = 64')
+        
 
     print_mc_vec_even(mc_L, L, f)
 
@@ -256,12 +270,15 @@ def find_num(vec_list, vec):
 def print_mc_vec_even(mc_L, L, f):
     count = 0
     vec_list = ['e']
+
+
     for n_stage in mc_L:
         for bits in n_stage:
             count = count + 1
             vec_list.append('e')
             for b in bits:
                 vec_list[count] = vec_list[count] + '+a{}'.format(b)
+
 
     f.write('metrics_vec[1][c_num * path + 0] = metrics [path]; // empty\n')
     count = 0
@@ -274,11 +291,11 @@ def print_mc_vec_even(mc_L, L, f):
             
         for bits in n_stage:
             s = 'e'
-            for b in bits[:-1]:
+            for b in bits[:-2]:
                 s = s + '+a{}'.format(b)
             num = find_num(vec_list, s)
             count = count + 1
-            f.write(tab + 'metrics_vec[1][c_num * path + {}] = sat_m<R>(metrics_vec[1][c_num * path + {}] + pen[{}]);'.format(count, num, bits[-1]) + ' // ' + s + '+a{}\n'.format(bits[-1]))
+            f.write(tab + 'metrics_vec[1][c_num * path + {}] = sat_m<R>(metrics_vec[1][c_num * path + {}] + pen[{}] + pen[{}]);'.format(count, num, bits[-2], bits[-1]) + ' // ' + s + '+a{}+a{}\n'.format(bits[-2], bits[-1]))
             
 
 
@@ -369,8 +386,10 @@ def main():
 
 
     f = open('./{}even.txt'.format(params.list_size), 'w')
+
     # print_L(L=params.list_size, f=f)
     print_L_even(L=params.list_size, f=f)
+
     f.close()
 
 if __name__ == '__main__':
