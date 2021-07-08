@@ -317,7 +317,7 @@ def print_mc_flip_even(mc_L, L, f):
             count = count + 1
             for b in bits:
                 f.write('\ts[new_path][off_s + bit_flips_r1[bits_num * old_path +{}]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +{}]] ? 0 : b;\n'.format(b, b))
-                f.write('\tbreak;\n')
+            f.write('\tbreak;\n')
     f.write('default:\n')
     f.write('\tthrow tools::runtime_error(__FILE__, __LINE__, __func__, "Flip bits error on rate 1 node.");\n')
     f.write('\tbreak;\n')
@@ -371,7 +371,7 @@ def print_mc_flip(mc_L, L, f):
             count = count + 1
             for b in bits:
                 f.write('\ts[new_path][off_s + bit_flips_r1[bits_num * old_path +{}]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +{}]] ? 0 : b;\n'.format(b, b))
-                f.write('\tbreak;\n')
+            f.write('\tbreak;\n')
     f.write('default:\n')
     f.write('\tthrow tools::runtime_error(__FILE__, __LINE__, __func__, "Flip bits error on rate 1 node.");\n')
     f.write('\tbreak;\n')
@@ -385,11 +385,12 @@ def main():
     params = parser.parse_args()
 
 
+    f = open('./{}.txt'.format(params.list_size), 'w')
+    print_L(L=params.list_size, f=f)
+    f.close()
+
     f = open('./{}even.txt'.format(params.list_size), 'w')
-
-    # print_L(L=params.list_size, f=f)
     print_L_even(L=params.list_size, f=f)
-
     f.close()
 
 if __name__ == '__main__':
