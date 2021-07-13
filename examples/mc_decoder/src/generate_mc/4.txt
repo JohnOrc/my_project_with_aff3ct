@@ -14,17 +14,17 @@ case 0:
 	// nothing to do
 	break;
 case 1:// e + a0 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +0]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +0]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +0]] = s[old_path][off_s + bit_flips[bits_num * old_path +0]] ? 0 : b;
 	break;
 case 2:// e + a1 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +1]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +1]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +1]] = s[old_path][off_s + bit_flips[bits_num * old_path +1]] ? 0 : b;
 	break;
 case 3:// e + a0 + a1 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +0]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +0]] ? 0 : b;
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +1]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +1]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +0]] = s[old_path][off_s + bit_flips[bits_num * old_path +0]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +1]] = s[old_path][off_s + bit_flips[bits_num * old_path +1]] ? 0 : b;
 	break;
 case 4:// e + a2 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +2]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +2]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +2]] = s[old_path][off_s + bit_flips[bits_num * old_path +2]] ? 0 : b;
 	break;
 default:
 	throw tools::runtime_error(__FILE__, __LINE__, __func__, "Flip bits error on rate 1 node.");

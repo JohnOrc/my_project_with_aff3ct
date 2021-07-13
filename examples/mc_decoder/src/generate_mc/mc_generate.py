@@ -280,7 +280,7 @@ def print_mc_vec_even(mc_L, L, f):
                 vec_list[count] = vec_list[count] + '+a{}'.format(b)
 
 
-    f.write('metrics_vec[1][c_num * path + 0] = metrics [path]; // empty\n')
+    f.write('metrics_vec[2][c_num * path + 0] = metrics [path]; // empty\n')
     count = 0
     tab = ''
     for n, n_stage in enumerate(mc_L):
@@ -295,7 +295,7 @@ def print_mc_vec_even(mc_L, L, f):
                 s = s + '+a{}'.format(b)
             num = find_num(vec_list, s)
             count = count + 1
-            f.write(tab + 'metrics_vec[1][c_num * path + {}] = sat_m<R>(metrics_vec[1][c_num * path + {}] + pen[{}] + pen[{}]);'.format(count, num, bits[-2], bits[-1]) + ' // ' + s + '+a{}+a{}\n'.format(bits[-2], bits[-1]))
+            f.write(tab + 'metrics_vec[2][c_num * path + {}] = sat_m<R>(metrics_vec[2][c_num * path + {}] + pen[{}] + pen[{}]);'.format(count, num, bits[-2], bits[-1]) + ' // ' + s + '+a{}+a{}\n'.format(bits[-2], bits[-1]))
             
 
 
@@ -316,10 +316,10 @@ def print_mc_flip_even(mc_L, L, f):
             f.write('case {}:'.format(count) + s + '\n')
             count = count + 1
             for b in bits:
-                f.write('\ts[new_path][off_s + bit_flips_r1[bits_num * old_path +{}]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +{}]] ? 0 : b;\n'.format(b, b))
+                f.write('\ts[new_path][off_s + bit_flips[bits_num * old_path +{}]] = s[old_path][off_s + bit_flips[bits_num * old_path +{}]] ? 0 : b;\n'.format(b, b))
             f.write('\tbreak;\n')
     f.write('default:\n')
-    f.write('\tthrow tools::runtime_error(__FILE__, __LINE__, __func__, "Flip bits error on rate 1 node.");\n')
+    f.write('\tthrow tools::runtime_error(__FILE__, __LINE__, __func__, "Flip bits error on spc node.");\n')
     f.write('\tbreak;\n')
     f.write('}')
 
@@ -370,7 +370,7 @@ def print_mc_flip(mc_L, L, f):
             f.write('case {}:'.format(count) + s + '\n')
             count = count + 1
             for b in bits:
-                f.write('\ts[new_path][off_s + bit_flips_r1[bits_num * old_path +{}]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +{}]] ? 0 : b;\n'.format(b, b))
+                f.write('\ts[new_path][off_s + bit_flips[bits_num * old_path +{}]] = s[old_path][off_s + bit_flips[bits_num * old_path +{}]] ? 0 : b;\n'.format(b, b))
             f.write('\tbreak;\n')
     f.write('default:\n')
     f.write('\tthrow tools::runtime_error(__FILE__, __LINE__, __func__, "Flip bits error on rate 1 node.");\n')

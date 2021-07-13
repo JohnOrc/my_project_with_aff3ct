@@ -14,6 +14,7 @@ set (EXECUTABLE_OUTPUT_PATH bin/)
 # Create the executable from sources
 add_executable(main ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
                     ${CMAKE_CURRENT_SOURCE_DIR}/src/codec_polar.hpp
+                    ${CMAKE_CURRENT_SOURCE_DIR}/src/mc_func.hpp
                     ${CMAKE_CURRENT_SOURCE_DIR}/src/Decoder_polar_SCL_mcfast_sys.hpp
                     ${CMAKE_CURRENT_SOURCE_DIR}/src/Decoder_polar_SCL_mcfast_sys.hxx
                     ${CMAKE_CURRENT_SOURCE_DIR}/src/Decoder_polar_SCL_oldfast_sys.hpp

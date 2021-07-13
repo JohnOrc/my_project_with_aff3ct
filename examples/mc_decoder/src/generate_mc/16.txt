@@ -49,136 +49,136 @@ case 0:
 	// nothing to do
 	break;
 case 1:// e + a0 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +0]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +0]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +0]] = s[old_path][off_s + bit_flips[bits_num * old_path +0]] ? 0 : b;
 	break;
 case 2:// e + a1 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +1]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +1]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +1]] = s[old_path][off_s + bit_flips[bits_num * old_path +1]] ? 0 : b;
 	break;
 case 3:// e + a0 + a1 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +0]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +0]] ? 0 : b;
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +1]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +1]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +0]] = s[old_path][off_s + bit_flips[bits_num * old_path +0]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +1]] = s[old_path][off_s + bit_flips[bits_num * old_path +1]] ? 0 : b;
 	break;
 case 4:// e + a2 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +2]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +2]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +2]] = s[old_path][off_s + bit_flips[bits_num * old_path +2]] ? 0 : b;
 	break;
 case 5:// e + a3 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +3]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +3]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +3]] = s[old_path][off_s + bit_flips[bits_num * old_path +3]] ? 0 : b;
 	break;
 case 6:// e + a0 + a2 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +0]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +0]] ? 0 : b;
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +2]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +2]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +0]] = s[old_path][off_s + bit_flips[bits_num * old_path +0]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +2]] = s[old_path][off_s + bit_flips[bits_num * old_path +2]] ? 0 : b;
 	break;
 case 7:// e + a0 + a3 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +0]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +0]] ? 0 : b;
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +3]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +3]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +0]] = s[old_path][off_s + bit_flips[bits_num * old_path +0]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +3]] = s[old_path][off_s + bit_flips[bits_num * old_path +3]] ? 0 : b;
 	break;
 case 8:// e + a1 + a2 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +1]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +1]] ? 0 : b;
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +2]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +2]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +1]] = s[old_path][off_s + bit_flips[bits_num * old_path +1]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +2]] = s[old_path][off_s + bit_flips[bits_num * old_path +2]] ? 0 : b;
 	break;
 case 9:// e + a1 + a3 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +1]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +1]] ? 0 : b;
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +3]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +3]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +1]] = s[old_path][off_s + bit_flips[bits_num * old_path +1]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +3]] = s[old_path][off_s + bit_flips[bits_num * old_path +3]] ? 0 : b;
 	break;
 case 10:// e + a2 + a3 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +2]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +2]] ? 0 : b;
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +3]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +3]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +2]] = s[old_path][off_s + bit_flips[bits_num * old_path +2]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +3]] = s[old_path][off_s + bit_flips[bits_num * old_path +3]] ? 0 : b;
 	break;
 case 11:// e + a0 + a1 + a2 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +0]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +0]] ? 0 : b;
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +1]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +1]] ? 0 : b;
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +2]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +2]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +0]] = s[old_path][off_s + bit_flips[bits_num * old_path +0]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +1]] = s[old_path][off_s + bit_flips[bits_num * old_path +1]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +2]] = s[old_path][off_s + bit_flips[bits_num * old_path +2]] ? 0 : b;
 	break;
 case 12:// e + a0 + a1 + a3 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +0]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +0]] ? 0 : b;
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +1]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +1]] ? 0 : b;
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +3]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +3]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +0]] = s[old_path][off_s + bit_flips[bits_num * old_path +0]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +1]] = s[old_path][off_s + bit_flips[bits_num * old_path +1]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +3]] = s[old_path][off_s + bit_flips[bits_num * old_path +3]] ? 0 : b;
 	break;
 case 13:// e + a0 + a2 + a3 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +0]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +0]] ? 0 : b;
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +2]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +2]] ? 0 : b;
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +3]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +3]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +0]] = s[old_path][off_s + bit_flips[bits_num * old_path +0]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +2]] = s[old_path][off_s + bit_flips[bits_num * old_path +2]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +3]] = s[old_path][off_s + bit_flips[bits_num * old_path +3]] ? 0 : b;
 	break;
 case 14:// e + a1 + a2 + a3 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +1]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +1]] ? 0 : b;
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +2]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +2]] ? 0 : b;
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +3]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +3]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +1]] = s[old_path][off_s + bit_flips[bits_num * old_path +1]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +2]] = s[old_path][off_s + bit_flips[bits_num * old_path +2]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +3]] = s[old_path][off_s + bit_flips[bits_num * old_path +3]] ? 0 : b;
 	break;
 case 15:// e + a0 + a1 + a2 + a3 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +0]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +0]] ? 0 : b;
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +1]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +1]] ? 0 : b;
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +2]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +2]] ? 0 : b;
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +3]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +3]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +0]] = s[old_path][off_s + bit_flips[bits_num * old_path +0]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +1]] = s[old_path][off_s + bit_flips[bits_num * old_path +1]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +2]] = s[old_path][off_s + bit_flips[bits_num * old_path +2]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +3]] = s[old_path][off_s + bit_flips[bits_num * old_path +3]] ? 0 : b;
 	break;
 case 16:// e + a4 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +4]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +4]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +4]] = s[old_path][off_s + bit_flips[bits_num * old_path +4]] ? 0 : b;
 	break;
 case 17:// e + a5 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +5]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +5]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +5]] = s[old_path][off_s + bit_flips[bits_num * old_path +5]] ? 0 : b;
 	break;
 case 18:// e + a6 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +6]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +6]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +6]] = s[old_path][off_s + bit_flips[bits_num * old_path +6]] ? 0 : b;
 	break;
 case 19:// e + a7 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +7]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +7]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +7]] = s[old_path][off_s + bit_flips[bits_num * old_path +7]] ? 0 : b;
 	break;
 case 20:// e + a0 + a4 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +0]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +0]] ? 0 : b;
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +4]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +4]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +0]] = s[old_path][off_s + bit_flips[bits_num * old_path +0]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +4]] = s[old_path][off_s + bit_flips[bits_num * old_path +4]] ? 0 : b;
 	break;
 case 21:// e + a0 + a5 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +0]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +0]] ? 0 : b;
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +5]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +5]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +0]] = s[old_path][off_s + bit_flips[bits_num * old_path +0]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +5]] = s[old_path][off_s + bit_flips[bits_num * old_path +5]] ? 0 : b;
 	break;
 case 22:// e + a0 + a6 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +0]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +0]] ? 0 : b;
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +6]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +6]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +0]] = s[old_path][off_s + bit_flips[bits_num * old_path +0]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +6]] = s[old_path][off_s + bit_flips[bits_num * old_path +6]] ? 0 : b;
 	break;
 case 23:// e + a0 + a7 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +0]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +0]] ? 0 : b;
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +7]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +7]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +0]] = s[old_path][off_s + bit_flips[bits_num * old_path +0]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +7]] = s[old_path][off_s + bit_flips[bits_num * old_path +7]] ? 0 : b;
 	break;
 case 24:// e + a1 + a4 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +1]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +1]] ? 0 : b;
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +4]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +4]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +1]] = s[old_path][off_s + bit_flips[bits_num * old_path +1]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +4]] = s[old_path][off_s + bit_flips[bits_num * old_path +4]] ? 0 : b;
 	break;
 case 25:// e + a1 + a5 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +1]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +1]] ? 0 : b;
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +5]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +5]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +1]] = s[old_path][off_s + bit_flips[bits_num * old_path +1]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +5]] = s[old_path][off_s + bit_flips[bits_num * old_path +5]] ? 0 : b;
 	break;
 case 26:// e + a2 + a4 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +2]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +2]] ? 0 : b;
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +4]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +4]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +2]] = s[old_path][off_s + bit_flips[bits_num * old_path +2]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +4]] = s[old_path][off_s + bit_flips[bits_num * old_path +4]] ? 0 : b;
 	break;
 case 27:// e + a3 + a4 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +3]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +3]] ? 0 : b;
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +4]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +4]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +3]] = s[old_path][off_s + bit_flips[bits_num * old_path +3]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +4]] = s[old_path][off_s + bit_flips[bits_num * old_path +4]] ? 0 : b;
 	break;
 case 28:// e + a0 + a1 + a4 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +0]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +0]] ? 0 : b;
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +1]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +1]] ? 0 : b;
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +4]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +4]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +0]] = s[old_path][off_s + bit_flips[bits_num * old_path +0]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +1]] = s[old_path][off_s + bit_flips[bits_num * old_path +1]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +4]] = s[old_path][off_s + bit_flips[bits_num * old_path +4]] ? 0 : b;
 	break;
 case 29:// e + a8 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +8]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +8]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +8]] = s[old_path][off_s + bit_flips[bits_num * old_path +8]] ? 0 : b;
 	break;
 case 30:// e + a9 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +9]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +9]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +9]] = s[old_path][off_s + bit_flips[bits_num * old_path +9]] ? 0 : b;
 	break;
 case 31:// e + a10 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +10]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +10]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +10]] = s[old_path][off_s + bit_flips[bits_num * old_path +10]] ? 0 : b;
 	break;
 case 32:// e + a11 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +11]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +11]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +11]] = s[old_path][off_s + bit_flips[bits_num * old_path +11]] ? 0 : b;
 	break;
 case 33:// e + a12 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +12]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +12]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +12]] = s[old_path][off_s + bit_flips[bits_num * old_path +12]] ? 0 : b;
 	break;
 case 34:// e + a13 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +13]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +13]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +13]] = s[old_path][off_s + bit_flips[bits_num * old_path +13]] ? 0 : b;
 	break;
 case 35:// e + a14 
-	s[new_path][off_s + bit_flips_r1[bits_num * old_path +14]] = s[old_path][off_s + bit_flips_r1[bits_num * old_path +14]] ? 0 : b;
+	s[new_path][off_s + bit_flips[bits_num * old_path +14]] = s[old_path][off_s + bit_flips[bits_num * old_path +14]] ? 0 : b;
 	break;
 default:
 	throw tools::runtime_error(__FILE__, __LINE__, __func__, "Flip bits error on rate 1 node.");
