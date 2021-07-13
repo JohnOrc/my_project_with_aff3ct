@@ -94,10 +94,10 @@ private:
 	inline void flip_bits_r1 (const int old_path, const int new_path, const int dup, const int off_s, const int n_elmts, const int bits_num);
 	inline void flip_bits_spc(const int old_path, const int new_path, const int dup, const int off_s, const int n_elmts);
 
-	void _partial_sort  (const R *values, std::vector<int> &pos, int n_elmts, int k); // path metric sort 
+	inline void _partial_sort  (const R *values, std::vector<int> &pos, int n_elmts, int k); // path metric sort 
 	
-	void _update_r1_vec    (const int path, const int array, const int n_elmts, const int bits_num, const int off_l); // cal r1 path metrics according to CM
-	void _update_spc_vec    (const int path, const int array, const int n_elmts, const int bits_num, const int off_l); // cal spc path metrics according to CM
+	inline void _update_r1_vec    (const int path, const int array, const int n_elmts, const int bits_num, const int off_l); // cal r1 path metrics according to CM
+	inline void _update_spc_vec    (const int path, const int array, const int n_elmts, const int bits_num, const int off_l); // cal spc path metrics according to CM
 
 	inline void erase_bad_paths (                                                                        );
 	inline int  duplicate_tree  (const int old_path, const int off_l, const int off_s, const int n_elmts ); // return the new_path

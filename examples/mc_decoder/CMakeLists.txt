@@ -15,9 +15,9 @@ set (EXECUTABLE_OUTPUT_PATH bin/)
 add_executable(main ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
                     ${CMAKE_CURRENT_SOURCE_DIR}/src/codec_polar.hpp
                     ${CMAKE_CURRENT_SOURCE_DIR}/src/Decoder_polar_SCL_mcfast_sys.hpp
-                    ${CMAKE_CURRENT_SOURCE_DIR}/src/Decoder_polar_SCL_mcfast_sys.cpp
+                    ${CMAKE_CURRENT_SOURCE_DIR}/src/Decoder_polar_SCL_mcfast_sys.hxx
                     ${CMAKE_CURRENT_SOURCE_DIR}/src/Decoder_polar_SCL_oldfast_sys.hpp
-                    ${CMAKE_CURRENT_SOURCE_DIR}/src/Decoder_polar_SCL_oldfast_sys.cpp
+                    ${CMAKE_CURRENT_SOURCE_DIR}/src/Decoder_polar_SCL_oldfast_sys.hxx
                     )
 # Add glog to project
 find_package (glog 0.5.0 REQUIRED)

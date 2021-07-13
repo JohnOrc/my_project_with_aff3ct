@@ -33,6 +33,7 @@ Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
                      new tools::Pattern_polar_rep_left,
                      new tools::Pattern_polar_rep,       // /!\ perf. degradation with REP nodes in fixed-point
                      new tools::Pattern_polar_spc(2,2)}, // /!\ perf. degradation with SPC nodes length > 4 (when L is big)
+					// new tools::Pattern_polar_spc}, // /!\ perf. degradation with SPC nodes length > 4 (when L is big)
                     1,
                     2,
                     true),
@@ -225,7 +226,7 @@ Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 	switch (L)
 	{
 		case 2:
-			r1_mc_size  = {4};
+			r1_mc_size  = {2};
 			spc_mc_size = {2};
 			metrics_vec[1].resize(L * r1_mc_size[0]); // L * |C|
 			break;
@@ -250,7 +251,7 @@ Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 			metrics_vec[1].resize(L * r1_mc_size[4]); // L * |C|
 			break;
 		case 64:
-			r1_mc_size  = {4, 113, 187, 227, 258};
+			r1_mc_size  = {4, 16,  112, 186, 226, 258};
 			spc_mc_size = {2, 8,   93,  182, 225, 258};
 			metrics_vec[1].resize(L * r1_mc_size[5]); // L * |C|
 			break;
@@ -641,16 +642,20 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 		int bits_num = (n_elmts >= L) ? L -1                  : n_elmts;
 		int indice_r = (n_elmts >= L) ? (int)std::log2(L) - 1 : (int)std::log2(n_elmts) - 1;
 
+		DLOG(INFO) << "N_elmts = " << n_elmts << " bits_num = " << bits_num << " indice_r = " << indice_r;
+
 		for (auto i = 0; i < n_active_paths; i++)
 		{
 			const auto path  = paths[i];
 			const auto array = path_2_array[path][r_d];			
 
 			for (auto j = 0; j < n_elmts; j++) l_tmp[j] = std::abs(l[array][off_l + j]);
-			sorter.partial_sort_destructive(l_tmp.data(), best_idx, n_elmts, bits_num);
+			_partial_sort(l_tmp.data(), best_idx, n_elmts, bits_num);
 			_update_r1_vec(path, array, n_elmts, bits_num, off_l);	
 		}
 		const auto n_list = (n_active_paths * r1_mc_size[indice_r] >= L) ? L : n_active_paths * r1_mc_size[indice_r];
+
+		DLOG(INFO) << "n_list = " << n_list << " r1 size = " << r1_mc_size[indice_r];
 
 		_partial_sort(metrics_vec[1].data(), best_idx, n_active_paths * r1_mc_size[indice_r], n_list);
 
@@ -680,81 +685,49 @@ template <int REV_D, int N_ELMTS>
 void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 ::update_paths_r1(const int off_l, const int off_s)
 {
-	std::cout << "error" << std::endl;
 
 	if (REV_D == 0)
-		update_paths_rep<REV_D, N_ELMTS>(off_l, off_s);
+	{
+		update_paths_rep(REV_D, off_l, off_s, N_ELMTS);
+	}
 	else
 	{
+		int bits_num = (N_ELMTS >= L) ? L -1                  : N_ELMTS;
+		int indice_r = (N_ELMTS >= L) ? (int)std::log2(L) - 1 : (int)std::log2(N_ELMTS) - 1;
 
-		if (N_ELMTS == 2)
+		DLOG(INFO) << "N_elmts = " << N_ELMTS << " bits_num = " << bits_num << " indice_r = " << indice_r;
+
+		for (auto i = 0; i < n_active_paths; i++)
 		{
-			for (auto i = 0; i < n_active_paths; i++)
-			{
-				const auto path  = paths[i];
-				const auto array = path_2_array[path][REV_D];
+			const auto path  = paths[i];
+			const auto array = path_2_array[path][REV_D];			
 
-				bit_flips[2 * path +0] = 0;
-				bit_flips[2 * path +1] = 1;
-
-				const auto pen0 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path +0]]));
-				const auto pen1 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path +1]]));
-
-				metrics_vec[1][4 * path +0] =          metrics       [    path   ];
-				metrics_vec[1][4 * path +1] = sat_m<R>(metrics       [    path   ] + pen0);
-				metrics_vec[1][4 * path +2] = sat_m<R>(metrics       [    path   ] + pen1);
-				metrics_vec[1][4 * path +3] = sat_m<R>(metrics_vec[1][4 * path +1] + pen1);
-			}
+			for (auto j = 0; j < N_ELMTS; j++) l_tmp[j] = std::abs(l[array][off_l + j]);
+			_partial_sort(l_tmp.data(), best_idx, N_ELMTS, bits_num);
+			_update_r1_vec(path, array, N_ELMTS, bits_num, off_l);	
 		}
-		else
-		{
-			for (auto i = 0; i < n_active_paths; i++)
-			{
-				const auto path  = paths[i];
-				const auto array = path_2_array[path][REV_D];
+		const auto n_list = (n_active_paths * r1_mc_size[indice_r] >= L) ? L : n_active_paths * r1_mc_size[indice_r];
 
-				for (auto i = 0; i < N_ELMTS; i++) l_tmp[i] = std::abs(l[array][off_l +i]);
-				sorter.partial_sort_destructive(l_tmp.data(), best_idx, N_ELMTS, 2);
-//				sorter_simd.partial_sort_abs(l[array].data() + off_l, best_idx, N_ELMTS, 2);
+		DLOG(INFO) << "n_list = " << n_list << " r1 size = " << r1_mc_size[indice_r];
 
-				bit_flips[2 * path +0] = best_idx[0];
-				bit_flips[2 * path +1] = best_idx[1];
+		_partial_sort(metrics_vec[1].data(), best_idx, n_active_paths * r1_mc_size[indice_r], n_list);
 
-				const auto pen0 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path +0]]));
-				const auto pen1 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path +1]]));
-
-				metrics_vec[1][4 * path +0] =          metrics       [    path   ];
-				metrics_vec[1][4 * path +1] = sat_m<R>(metrics       [    path   ] + pen0);
-				metrics_vec[1][4 * path +2] = sat_m<R>(metrics       [    path   ] + pen1);
-				metrics_vec[1][4 * path +3] = sat_m<R>(metrics_vec[1][4 * path +1] + pen1);
-			}
-		}
-		for (auto i = n_active_paths; i < L; i++)
-			for (auto j = 0; j < 4; j++)
-				metrics_vec[1][4 * paths[i] +j] = std::numeric_limits<R>::max();
-
-		// L first of the lists are the L best paths		
-		const auto n_list = (n_active_paths * 4 >= L) ? L : n_active_paths * 4;
-		sorter.partial_sort(metrics_vec[1].data(), best_idx, L * 4, n_list);
-		// count the number of duplications per path
+		// count the number of duplications per path, count which old_path survive
 		for (auto i = 0; i < n_list; i++)
-			dup_count[best_idx[i] / 4]++;
+			dup_count[best_idx[i] / r1_mc_size[indice_r]]++;
 
 		// erase bad paths
 		erase_bad_paths();
 
 		for (auto i = 0; i < n_list; i++)
 		{
-			const auto path  = best_idx[i] / 4;
-			const auto dup   = best_idx[i] % 4;
+			const auto path  = best_idx[i] / r1_mc_size[indice_r];
+			const auto dup   = best_idx[i] % r1_mc_size[indice_r];
 			const auto array = path_2_array[path][REV_D];
-
-			API_polar::template h<N_ELMTS>(s[path], l[array], off_l, off_s, N_ELMTS);
-
+			API_polar::h(s[path], l[array], off_l, off_s, N_ELMTS);
 			const auto new_path = (dup_count[path] > 1) ? duplicate_tree(path, off_l, off_s, N_ELMTS) : path;
-			flip_bits_r1(path, new_path, dup, off_s, N_ELMTS);
+			flip_bits_r1(path, new_path, dup, off_s, N_ELMTS, bits_num);
 			metrics[new_path] = metrics_vec[1][best_idx[i]];
-
 			dup_count[path]--;
 		}
 	}
@@ -3074,6 +3047,7 @@ void Decoder_polar_SCL_mcfast_sys<B,R,API_polar>
 ::_update_r1_vec(const int path, const int array, const int n_elmts, const int bits_num, const int off_l)
 {
 	int c_num = r1_mc_size[(int)std::log2((n_elmts > L) ? L : n_elmts) - 1];
+	
 	std ::vector<R> pen(bits_num);
 
 	for (int i = 0; i < bits_num; i++)
