@@ -98,4 +98,31 @@ Run and debug
 use debug mode 
 
 	$ cmake .. -DCMAKE_BUILD_TYPE="Debug"
-	
+
+## Milestone 1
+add Rate 1 HWF version minimum combinations 
+
+### influnce scope:
+`Decoder_polar_SCL_mcfast_sys.hpp`
+- flip_bits_r1
+- _partial_sort
+- _update_r1_vec
+  
+`Decoder_polar_SCL_mcfast_sys.hxx`
+- flip_bits_r1
+- _partial_sort
+- _update_r1_vec
+  
+## Milestone 2
+add SPC HWF version minimum combinations 
+
+### influnce scope:
+`Decoder_polar_SCL_mcfast_sys.hpp`
+- flip_bits_spc
+- _partial_sort
+- _update_spc_vec
+  
+`Decoder_polar_SCL_mcfast_sys.hxx`
+- flip_bits_spc
+- _partial_sort
+- _update_spc_vec
