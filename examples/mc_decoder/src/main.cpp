@@ -20,8 +20,8 @@ struct params
 {
 	int   K         =  512;     // number of information bits
 	int   N         =  1024;     // codeword size
-	int   L 		=    4;     // list size of SCL 
-	int   fe        =  100;     // number of frame errors
+	int   L 		=    8;     // list size of SCL 
+	int   fe        =   10;     // number of frame errors
 	int   seed      =   0;     // PRNG seed for the AWGN channel
 	float ebn0_min  =   3.00f; // minimum SNR value
 	float ebn0_max  =   3.01f; // maximum SNR value
