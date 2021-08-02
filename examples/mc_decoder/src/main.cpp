@@ -9,17 +9,18 @@
 using namespace aff3ct;
 
 #include "codec_polar.hpp"
+#include "Decoder_polar_SCL_ecfast_sys.hxx"
 #include "Decoder_polar_SCL_mcfast_sys.hxx"
 #include "Decoder_polar_SCL_oldfast_sys.hxx"
 
 #define USEMC 1
-#define ONE   0
+#define ONE   1
 
 
 struct params
 {
-	int   K         =  512;     // number of information bits
-	int   N         =  1024;     // codeword size
+	int   K         =  256;     // number of information bits
+	int   N         =  512;     // codeword size
 	int   L 		=    8;     // list size of SCL 
 	int   fe        =   10;     // number of frame errors
 	int   seed      =   0;     // PRNG seed for the AWGN channel
@@ -37,7 +38,7 @@ struct modules
 	std::unique_ptr<module::Modem_BPSK<>>             modem;
 	std::unique_ptr<module::Channel_AWGN_LLR<>>       channel;
 	#if (USEMC > 0)
-	std::unique_ptr<module::Decoder_polar_SCL_mcfast_sys<>>   decoder;
+	std::unique_ptr<module::Decoder_polar_SCL_ecfast_sys<>>   decoder;
 	#else
 	std::unique_ptr<module::Decoder_polar_SCL_oldfast_sys<>>   decoder;
 	#endif
@@ -177,7 +178,7 @@ void init_modules(const params &p, modules &m)
 	m.modem   = std::unique_ptr<module::Modem_BPSK            <>>(new module::Modem_BPSK            <>(p.N      ));
 	m.channel = std::unique_ptr<module::Channel_AWGN_LLR      <>>(new module::Channel_AWGN_LLR      <>(p.N      ));
 	#if (USEMC > 0)
-	m.decoder = std::unique_ptr<module::Decoder_polar_SCL_mcfast_sys  <>>(new module::Decoder_polar_SCL_mcfast_sys  <>(p.K, p.N, p.L, frozen_bits));
+	m.decoder = std::unique_ptr<module::Decoder_polar_SCL_ecfast_sys  <>>(new module::Decoder_polar_SCL_ecfast_sys  <>(p.K, p.N, p.L, frozen_bits));
 	#else
 	m.decoder = std::unique_ptr<module::Decoder_polar_SCL_oldfast_sys  <>>(new module::Decoder_polar_SCL_oldfast_sys  <>(p.K, p.N, p.L, frozen_bits));
 	#endif
