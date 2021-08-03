@@ -13,8 +13,8 @@ using namespace aff3ct;
 #include "Decoder_polar_SCL_mcfast_sys.hxx"
 #include "Decoder_polar_SCL_oldfast_sys.hxx"
 
-#define USEMC 1
-#define ONE   1
+#define USEMC 0
+#define ONE   0
 
 
 struct params

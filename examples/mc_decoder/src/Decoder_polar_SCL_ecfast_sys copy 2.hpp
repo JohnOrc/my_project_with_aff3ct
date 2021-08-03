@@ -98,7 +98,7 @@ protected:
 	        inline int  up_ref_array_idx(const int path, const int r_d); // return the array
 
 private:
-	inline bool insert_sort(const R val, const B idx, const int p);
+	inline bool insert_sort(const R val, const B idx, const B p);
 	inline void flip_bits_r1 (const int old_path, const int new_path, const int dup, const int off_s, const int n_elmts);
 	inline void flip_bits_spc(const int old_path, const int new_path, const int dup, const int off_s, const int n_elmts);
 

@@ -98,6 +98,7 @@ Run and debug
 use debug mode 
 
 	$ cmake .. -DCMAKE_BUILD_TYPE="Debug"
+	$ cmake .. -DCMAKE_BUILD_TYPE="Release"
 
 ## Milestone 1
 add Rate 1 HWF version minimum combinations 
@@ -126,3 +127,5 @@ add SPC HWF version minimum combinations
 - flip_bits_spc
 - _partial_sort
 - _update_spc_vec
+
+-p "32" --sim-type "BFER" -C "POLAR" -m "0.0" -M "4.26" -s "0.25" -e "100" --enc-fb-gen-method "GA" -K "1723" -N "2048" --src-type "RAND" --chn-type "AWGN" --dec-type "SCL" --dec-implem "ECFAST" --dec-simd "INTRA" --crc-type "32-GZIP" --crc-implem "FAST" --dec-polar-nodes "{R0,R0L,R1,REP,REPL,SPC_4}" -L "8" 

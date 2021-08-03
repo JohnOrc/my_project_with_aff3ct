@@ -51,7 +51,7 @@ Decoder_polar_SCL_ecfast_sys<B,R,API_polar>
 //sorter_simd      (N),
   best_idx         (L),
   l_tmp            (N),
-  path_idx 		   (L),
+  path_idx		   (L),
   it			   (L)
 {
 	const std::string name = "Decoder_polar_SCL_ecfast_sys";
@@ -136,8 +136,8 @@ Decoder_polar_SCL_ecfast_sys<B,R,API_polar>
 //sorter_simd      (N),
   best_idx         (L),
   l_tmp            (N),
-  path_idx 		   (L),
-  it 			   (L)
+  path_idx		   (L),
+  it			   (L)
 {
 	const std::string name = "Decoder_polar_SCL_ecfast_sys";
 	this->set_name(name);
@@ -560,159 +560,231 @@ void Decoder_polar_SCL_ecfast_sys<B,R,API_polar>
 }
 
 template <typename B, typename R, class API_polar>
+bool Decoder_polar_SCL_ecfast_sys<B,R,API_polar>
+::insert_sort(const R val, const B idx, const int p)
+{
+	typename std::list<Node>::iterator a, b;
+
+	if (val >= insert_l.back().val) // first, check the end
+		return false;
+	else 
+	{
+		for (a = it[idx]; a != insert_l.end(); ++a) // then check from its head
+		{
+			b = a;
+			b++;
+			if ((*a).val <= val && val <= (*b).val)
+			{
+				insert_l.insert(b, Node(val, idx, p));
+				it[idx] = a++; // update head iterator
+				break;				
+			}
+		}
+		insert_l.pop_back();	// pop out back element
+		return true;
+	}
+}
+
+template <typename B, typename R, class API_polar>
 void Decoder_polar_SCL_ecfast_sys<B,R,API_polar>
 ::update_paths_r1(const int r_d, const int off_l, const int off_s, const int n_elmts)
 {
-	bool insert0(const R val, const B idx, const B p)
-	{
-		typename std::list<Node>::iterator i;
-
-		if (insert_l.size() == n_list)
-		{
-			if (val >= insert_l.back().val)
-				return false;
-			else
-			{
-				for (i = it[idx]; i != insert_l.end(); ++i)
-					if (*i.val <= val && val <= *(i+1).val)
-					{
-						insert_l.insert(i+1, Node(val, idx, p));
-						it[idx] = i+1;
-						break;
-					}
-				insert_l.pop_back();	
-				return true;
-			}
-		}
-		else
-		{
-			if (val >= insert_l.back().val)
-			{
-				insert_l.push_back(Node(val, idx, p));
-				it[idx] = insert_l.end();
-			}
-			else
-			{
-				for (i = it[idx]; i != insert_l.end(); ++i)
-					if (*i.val <= val && val <= *(i+1).val)
-					{
-						insert_l.insert(i+1, Node(val, idx, p));
-						it[idx] = i+1;
-						break;
-					}
-				return true;
-			}
-		}
-	}
-
-	
 
 	if (r_d == 0)
 		update_paths_rep(r_d, off_l, off_s, n_elmts);
 	else
 	{
 		const auto n_list = (n_active_paths * 4 >= L) ? L : n_active_paths * 4;
-		sorter.partial_sort(metrics.data(), path_idx, n_active_paths, n_active_paths);
 
-		for (auto i = 0; i < n_active_paths; i++)
+		if (n_list == L)
 		{
-			const auto path  = paths[i];
-
-			it[0] = insert_l.end();
-			insert_l.push_back(Node(metrics[path_idx[i]], i, path_idx[i]));
-			metrics_vec[1][4 * path +0] =          metrics       [    path   ];
-		}
-
-		// generate the candidates with the Chase-II algorithm
-		if (n_elmts == 2)
-		{
+			sorter.partial_sort(metrics.data(), path_idx, n_active_paths, n_active_paths);
+			
 			for (auto i = 0; i < n_active_paths; i++)
 			{
-				if (i >= insert_l.back().idx)
-					break;
+				insert_l.push_back(Node(metrics[path_idx[i]], i, path_idx[i]*4));
+				it[i] = --(insert_l.end());
+			}
+			if (n_elmts == 2)
+			{
+				for (auto i = 0; i < n_active_paths; i++)
+				{
+					if (i >= insert_l.back().idx)
+						break;
 
-				const auto path  = paths_idx[i];
+					const auto path  = path_idx[i];
+					const auto array = path_2_array[path][r_d];
+					auto pen0 = sat_m<R>(std::abs(l[array][off_l + 0]));
+					auto pen1 = sat_m<R>(std::abs(l[array][off_l + 1]));
+
+					if (pen0 > pen1)
+					{					
+						auto pen = pen1;
+						pen1= pen0;
+						pen0= pen;
+						bit_flips[2 * path +0] = 1;
+						bit_flips[2 * path +1] = 0;
+					}
+					else
+					{
+						bit_flips[2 * path +0] = 0;
+						bit_flips[2 * path +1] = 1;
+					}
+
+					if (! insert_sort(sat_m<R>(metrics[path] + pen0), i, 4 * path +1))
+						continue;
+					if (! insert_sort(sat_m<R>(metrics[path] + pen1), i, 4 * path +2))
+						continue;
+					insert_sort(sat_m<R>(metrics[path] + pen0 + pen1), i, 4 * path +3);
+				}
+			}
+			else
+			{
+				for (auto i = 0; i < n_active_paths; i++)
+				{
+					if (i >= insert_l.back().idx)
+						break;
+
+					const auto path  = path_idx[i];
+					const auto array = path_2_array[path][r_d];
+
+
+					for (auto j = 0; j < n_elmts; j++)
+					{
+						l_tmp[j] = std::abs(l[array][off_l + j]);
+					}
+
+					sorter.partial_sort_destructive(l_tmp.data(), best_idx, n_elmts, 2);
+
+
+					bit_flips[2 * path +0] = best_idx[0];
+					bit_flips[2 * path +1] = best_idx[1];
+
+					const auto pen0 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path +0]]));
+					const auto pen1 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path +1]]));
+
+
+					if (! insert_sort(sat_m<R>(metrics[path] + pen0), i, 4 * path +1))
+						continue;
+					if (! insert_sort(sat_m<R>(metrics[path] + pen1), i, 4 * path +2))
+						continue;
+					insert_sort(sat_m<R>(metrics[path] + pen0 + pen1), i, 4 * path +3);
+				}
+			}
+
+
+			// count the number of duplications per path
+			for (typename std::list<Node>::iterator i = insert_l.begin(); i != insert_l.end(); ++i)
+			{
+				dup_count[(*i).p / 4]++;
+			}
+			
+			// erase bad paths
+			erase_bad_paths();
+
+			for (auto i = 0; i < n_list; i++)
+			{
+				const auto node  = insert_l.front();
+				insert_l.pop_front();
+				const auto path  = node.p / 4;
+				const auto dup   = node.p % 4;
 				const auto array = path_2_array[path][r_d];
-				const auto pen0 = sat_m<R>(std::abs(l[array][off_l + 0]));
-				const auto pen1 = sat_m<R>(std::abs(l[array][off_l + 1]));
-				const auto pen;
 
-				if (pen0 > pen1)
-				{
-					bit_flips[2 * path +0] = 1;
-					bit_flips[2 * path +1] = 0;
-					pen = pen1;
-					pen1= pen0;
-					pen0= pen;
-				}
-				else
-				{
-					bit_flips[2 * path +0] = 0;
-					bit_flips[2 * path +1] = 1;
-				}
+				API_polar::h(s[path], l[array], off_l, off_s, n_elmts);
 
-				if (! insert_sort(sat_m<R>(metrics[path] + pen0), i, 4 * path +1))
-					continue;
-				if (! insert_sort(sat_m<R>(metrics[path] + pen1), i, 4 * path +1))
-					continue;
-				insert_sort(sat_m<R>(metrics[path] + pen0 + pen1), i, 4 * path +1);
+				const auto new_path = (dup_count[path] > 1) ? duplicate_tree(path, off_l, off_s, n_elmts) : path;
+				flip_bits_r1(path, new_path, dup, off_s, n_elmts);
+				metrics[new_path] = node.val;
+
+				dup_count[path]--;
 			}
 		}
 		else
 		{
-			for (auto i = 0; i < n_active_paths; i++)
+			// generate the candidates with the Chase-II algorithm
+			if (n_elmts == 2)
 			{
-				if (i >= insert_l.back().idx)
-					break;
+				for (auto i = 0; i < n_active_paths; i++)
+				{
+					const auto path  = paths[i];
+					const auto array = path_2_array[path][r_d];
 
-				const auto path  = paths_idx[i];
+					bit_flips[2 * path +0] = 0;
+					bit_flips[2 * path +1] = 1;
+
+					const auto pen0 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path +0]]));
+					const auto pen1 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path +1]]));
+
+					metrics_vec[1][4 * path +0] =          metrics       [    path   ];
+					metrics_vec[1][4 * path +1] = sat_m<R>(metrics       [    path   ] + pen0);
+					metrics_vec[1][4 * path +2] = sat_m<R>(metrics       [    path   ] + pen1);
+					metrics_vec[1][4 * path +3] = sat_m<R>(metrics_vec[1][4 * path +1] + pen1);
+				}
+			}
+			else
+			{
+				for (auto i = 0; i < n_active_paths; i++)
+				{
+					const auto path  = paths[i];
+					const auto array = path_2_array[path][r_d];
+
+
+
+
+					for (auto j = 0; j < n_elmts; j++)
+					{
+						l_tmp[j] = std::abs(l[array][off_l + j]);
+					}
+
+					sorter.partial_sort_destructive(l_tmp.data(), best_idx, n_elmts, 2);
+
+
+					bit_flips[2 * path +0] = best_idx[0];
+					bit_flips[2 * path +1] = best_idx[1];
+
+					const auto pen0 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path +0]]));
+					const auto pen1 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path +1]]));
+
+
+					metrics_vec[1][4 * path +0] =          metrics       [    path   ];
+					metrics_vec[1][4 * path +1] = sat_m<R>(metrics       [    path   ] + pen0);
+					metrics_vec[1][4 * path +2] = sat_m<R>(metrics       [    path   ] + pen1);
+					metrics_vec[1][4 * path +3] = sat_m<R>(metrics_vec[1][4 * path +1] + pen1);
+				}
+			}
+			
+			for (auto i = n_active_paths; i < L; i++)
+				for (auto j = 0; j < 4; j++)
+					metrics_vec[1][4 * paths[i] +j] = std::numeric_limits<R>::max();
+
+			// L first of the lists are the L best paths
+			sorter.partial_sort(metrics_vec[1].data(), best_idx, L * 4, n_list);
+
+			// count the number of duplications per path
+			for (auto i = 0; i < n_list; i++)
+			{
+				dup_count[best_idx[i] / 4]++;
+			}
+
+			// erase bad paths
+			erase_bad_paths();
+
+			for (auto i = 0; i < n_list; i++)
+			{
+				const auto path  = best_idx[i] / 4;
+				const auto dup   = best_idx[i] % 4;
 				const auto array = path_2_array[path][r_d];
 
-
-				for (auto j = 0; j < n_elmts; j++)
-				{
-					l_tmp[j] = std::abs(l[array][off_l + j]);
-				}
-
-				sorter.partial_sort_destructive(l_tmp.data(), best_idx, n_elmts, 2);
+				API_polar::h(s[path], l[array], off_l, off_s, n_elmts);
 
 
-				bit_flips[2 * path +0] = best_idx[0];
-				bit_flips[2 * path +1] = best_idx[1];
+				const auto new_path = (dup_count[path] > 1) ? duplicate_tree(path, off_l, off_s, n_elmts) : path;
+				flip_bits_r1(path, new_path, dup, off_s, n_elmts);
+				metrics[new_path] = metrics_vec[1][best_idx[i]];
 
-				const auto pen0 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path +0]]));
-				const auto pen1 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path +1]]));
 
-				if (! insert_sort(sat_m<R>(metrics[path] + pen0), i, 4 * path +1))
-					continue;
-				if (! insert_sort(sat_m<R>(metrics[path] + pen1), i, 4 * path +1))
-					continue;
-				insert_sort(sat_m<R>(metrics[path] + pen0 + pen1), i, 4 * path +1);
+				dup_count[path]--;
 			}
-		}
-
-		// count the number of duplications per path
-		for (typename std::list<Node>::iterator i = insert_l.begin(); i != insert_l.end(); ++i)
-			dup_count[*i.q / 4]++;
-
-		// erase bad paths
-		erase_bad_paths();
-
-		for (auto i = 0; i < n_list; i++)
-		{
-			const auto path  = best_idx[i] / 4;
-			const auto dup   = best_idx[i] % 4;
-			const auto array = path_2_array[path][r_d];
-
-			API_polar::h(s[path], l[array], off_l, off_s, n_elmts);
-
-
-			const auto new_path = (dup_count[path] > 1) ? duplicate_tree(path, off_l, off_s, n_elmts) : path;
-			flip_bits_r1(path, new_path, dup, off_s, n_elmts);
-			metrics[new_path] = metrics_vec[1][best_idx[i]];
-
-
-			dup_count[path]--;
 		}
 	}
 }
@@ -726,30 +798,49 @@ void Decoder_polar_SCL_ecfast_sys<B,R,API_polar>
 		update_paths_rep<REV_D, N_ELMTS>(off_l, off_s);
 	else
 	{
-		sorter.partial_sort(metrics.data(), path_idx, n_active_paths, n_active_paths);
 		// generate the candidates with the Chase-II algorithm
-	
-		for (auto i = 0; i < n_active_paths; i++)
+		if (N_ELMTS == 2)
 		{
-			const auto path  = paths[i];
-			const auto array = path_2_array[path][REV_D];
+			for (auto i = 0; i < n_active_paths; i++)
+			{
+				const auto path  = paths[i];
+				const auto array = path_2_array[path][REV_D];
 
-			for (auto i = 0; i < N_ELMTS; i++) l_tmp[i] = std::abs(l[array][off_l +i]);
-			sorter.partial_sort_destructive(l_tmp.data(), best_idx, N_ELMTS, 2);
+				bit_flips[2 * path +0] = 0;
+				bit_flips[2 * path +1] = 1;
+
+				const auto pen0 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path +0]]));
+				const auto pen1 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path +1]]));
+
+				metrics_vec[1][4 * path +0] =          metrics       [    path   ];
+				metrics_vec[1][4 * path +1] = sat_m<R>(metrics       [    path   ] + pen0);
+				metrics_vec[1][4 * path +2] = sat_m<R>(metrics       [    path   ] + pen1);
+				metrics_vec[1][4 * path +3] = sat_m<R>(metrics_vec[1][4 * path +1] + pen1);
+			}
+		}
+		else
+		{
+			for (auto i = 0; i < n_active_paths; i++)
+			{
+				const auto path  = paths[i];
+				const auto array = path_2_array[path][REV_D];
+
+				for (auto i = 0; i < N_ELMTS; i++) l_tmp[i] = std::abs(l[array][off_l +i]);
+				sorter.partial_sort_destructive(l_tmp.data(), best_idx, N_ELMTS, 2);
 //				sorter_simd.partial_sort_abs(l[array].data() + off_l, best_idx, N_ELMTS, 2);
 
-			bit_flips[2 * path +0] = best_idx[0];
-			bit_flips[2 * path +1] = best_idx[1];
+				bit_flips[2 * path +0] = best_idx[0];
+				bit_flips[2 * path +1] = best_idx[1];
 
-			const auto pen0 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path +0]]));
-			const auto pen1 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path +1]]));
+				const auto pen0 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path +0]]));
+				const auto pen1 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path +1]]));
 
-			metrics_vec[1][4 * path +0] =          metrics       [    path   ];
-			metrics_vec[1][4 * path +1] = sat_m<R>(metrics       [    path   ] + pen0);
-			metrics_vec[1][4 * path +2] = sat_m<R>(metrics       [    path   ] + pen1);
-			metrics_vec[1][4 * path +3] = sat_m<R>(metrics_vec[1][4 * path +1] + pen1);
+				metrics_vec[1][4 * path +0] =          metrics       [    path   ];
+				metrics_vec[1][4 * path +1] = sat_m<R>(metrics       [    path   ] + pen0);
+				metrics_vec[1][4 * path +2] = sat_m<R>(metrics       [    path   ] + pen1);
+				metrics_vec[1][4 * path +3] = sat_m<R>(metrics_vec[1][4 * path +1] + pen1);
+			}
 		}
-
 		for (auto i = n_active_paths; i < L; i++)
 			for (auto j = 0; j < 4; j++)
 				metrics_vec[1][4 * paths[i] +j] = std::numeric_limits<R>::max();
