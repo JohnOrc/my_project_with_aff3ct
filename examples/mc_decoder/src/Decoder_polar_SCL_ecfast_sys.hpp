@@ -51,9 +51,11 @@ protected:
 	struct Node
     {
         R val;
-        B idx, p;
-        Node(R a=0, B b=0, int c=0):
-            val(a), idx(b), p(c){}
+        B idx;
+		int p;
+		bool ori;
+        Node(R a=0, B b=0, int c=0, bool d=true):
+            val(a), idx(b), p(c), ori(d){}
     };
 	typename std::list<Node>           					insert_l;
 	std::vector<typename std::list<Node>::iterator>    	it;
@@ -98,7 +100,7 @@ protected:
 	        inline int  up_ref_array_idx(const int path, const int r_d); // return the array
 
 private:
-	inline bool insert_sort(const R val, const B idx, const int p);
+	inline bool insert_sort(const R val, const B idx, const int p, const bool ori);
 	inline void flip_bits_r1 (const int old_path, const int new_path, const int dup, const int off_s, const int n_elmts);
 	inline void flip_bits_spc(const int old_path, const int new_path, const int dup, const int off_s, const int n_elmts);
 

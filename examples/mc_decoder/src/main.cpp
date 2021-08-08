@@ -19,14 +19,14 @@ using namespace aff3ct;
 
 struct params
 {
-	int   K         =  256;     // number of information bits
-	int   N         =  512;     // codeword size
-	int   L 		=    8;     // list size of SCL 
-	int   fe        =   10;     // number of frame errors
+	int   K         =  1723;     // number of information bits
+	int   N         =  2048;     // codeword size
+	int   L 		=    32;     // list size of SCL 
+	int   fe        =   100;     // number of frame errors
 	int   seed      =   0;     // PRNG seed for the AWGN channel
-	float ebn0_min  =   3.00f; // minimum SNR value
-	float ebn0_max  =   3.01f; // maximum SNR value
-	float ebn0_step =   1.00f; // SNR step
+	float ebn0_min  =   1.5f; // minimum SNR value
+	float ebn0_max  =   3.6; // maximum SNR value
+	float ebn0_step =   0.25f; // SNR step
 	float R;                   // code rate (R=K/N)
 };
 void init_params(params &p);
@@ -40,7 +40,7 @@ struct modules
 	#if (USEMC > 0)
 	std::unique_ptr<module::Decoder_polar_SCL_ecfast_sys<>>   decoder;
 	#else
-	std::unique_ptr<module::Decoder_polar_SCL_oldfast_sys<>>   decoder;
+	std::unique_ptr<module::Decoder_polar_SCL_fast_sys<>>   decoder;
 	#endif
 	std::unique_ptr<module::Monitor_BFER<>>           monitor;
 	std::vector<const module::Module*>                list; // list of module pointers declared in this structure
@@ -180,7 +180,7 @@ void init_modules(const params &p, modules &m)
 	#if (USEMC > 0)
 	m.decoder = std::unique_ptr<module::Decoder_polar_SCL_ecfast_sys  <>>(new module::Decoder_polar_SCL_ecfast_sys  <>(p.K, p.N, p.L, frozen_bits));
 	#else
-	m.decoder = std::unique_ptr<module::Decoder_polar_SCL_oldfast_sys  <>>(new module::Decoder_polar_SCL_oldfast_sys  <>(p.K, p.N, p.L, frozen_bits));
+	m.decoder = std::unique_ptr<module::Decoder_polar_SCL_fast_sys  <>>(new module::Decoder_polar_SCL_fast_sys  <>(p.K, p.N, p.L, frozen_bits));
 	#endif
 	m.monitor = std::unique_ptr<module::Monitor_BFER          <>>(new module::Monitor_BFER          <>(p.K, p.fe));
 	m.channel->set_seed(p.seed);

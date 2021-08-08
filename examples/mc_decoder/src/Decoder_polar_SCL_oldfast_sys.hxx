@@ -495,6 +495,9 @@ void Decoder_polar_SCL_oldfast_sys<B,R,API_polar>
 
 		normalize_scl_metrics<R>(this->metrics, this->L);
 	}
+
+	// DLOG(INFO) << "************************************************";
+
 }
 
 template <typename B, typename R, class API_polar>
@@ -577,9 +580,16 @@ void Decoder_polar_SCL_oldfast_sys<B,R,API_polar>
 				const auto pen0 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path +0]]));
 				const auto pen1 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path +1]]));
 
+				DLOG(INFO) << "insert " <<sat_m<R>(metrics[path]);
 				metrics_vec[1][4 * path +0] =          metrics       [    path   ];
+
+				DLOG(INFO) << "insert ? " <<sat_m<R>(metrics[path] + pen0);
 				metrics_vec[1][4 * path +1] = sat_m<R>(metrics       [    path   ] + pen0);
+
+				DLOG(INFO) << "insert ? " <<sat_m<R>(metrics[path] + pen1);
 				metrics_vec[1][4 * path +2] = sat_m<R>(metrics       [    path   ] + pen1);
+
+				DLOG(INFO) << "insert ? " <<sat_m<R>(metrics[path] + pen0 + pen1);
 				metrics_vec[1][4 * path +3] = sat_m<R>(metrics_vec[1][4 * path +1] + pen1);
 			}
 		}
@@ -643,7 +653,7 @@ void Decoder_polar_SCL_oldfast_sys<B,R,API_polar>
 			const auto new_path = (dup_count[path] > 1) ? duplicate_tree(path, off_l, off_s, n_elmts) : path;
 			flip_bits_r1(path, new_path, dup, off_s, n_elmts);
 			metrics[new_path] = metrics_vec[1][best_idx[i]];
-
+			DLOG(INFO) << metrics[new_path] << " n= " << n_elmts;
 
 			dup_count[path]--;
 		}
@@ -673,6 +683,7 @@ void Decoder_polar_SCL_oldfast_sys<B,R,API_polar>
 				const auto pen0 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path +0]]));
 				const auto pen1 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path +1]]));
 
+				
 				metrics_vec[1][4 * path +0] =          metrics       [    path   ];
 				metrics_vec[1][4 * path +1] = sat_m<R>(metrics       [    path   ] + pen0);
 				metrics_vec[1][4 * path +2] = sat_m<R>(metrics       [    path   ] + pen1);

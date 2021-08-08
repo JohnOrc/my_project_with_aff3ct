@@ -561,21 +561,19 @@ void Decoder_polar_SCL_ecfast_sys<B,R,API_polar>
 
 template <typename B, typename R, class API_polar>
 bool Decoder_polar_SCL_ecfast_sys<B,R,API_polar>
-::insert_sort(const R val, const B idx, const int p)
+::insert_sort(const R val, const B idx, const int p, const bool ori)
 {
-	typename std::list<Node>::iterator a, b;
-
 	if (val >= insert_l.back().val) // first, check the end
 		return false;
 	else 
 	{
-		for (a = it[idx]; a != insert_l.end(); ++a) // then check from its head
+		for (auto a = it[idx]; a != insert_l.end(); ++a) // then check from its head
 		{
-			b = a;
+			auto b = a;
 			b++;
 			if ((*a).val <= val && val <= (*b).val)
 			{
-				insert_l.insert(b, Node(val, idx, p));
+				insert_l.insert(b, Node(val, idx, p, ori));
 				it[idx] = a++; // update head iterator
 				break;				
 			}
@@ -596,20 +594,22 @@ void Decoder_polar_SCL_ecfast_sys<B,R,API_polar>
 	{
 		const auto n_list = (n_active_paths * 4 >= L) ? L : n_active_paths * 4;
 
-		if (n_list == L)
+		if (n_active_paths == L)
 		{
 			sorter.partial_sort(metrics.data(), path_idx, n_active_paths, n_active_paths);
 			
 			for (auto i = 0; i < n_active_paths; i++)
 			{
-				insert_l.push_back(Node(metrics[path_idx[i]], i, path_idx[i]*4));
-				it[i] = --(insert_l.end());
+				insert_l.push_back(Node(metrics[path_idx[i]], i, path_idx[i]*4, true));
+				it[i] = insert_l.end();
+				--it[i];
 			}
 			if (n_elmts == 2)
 			{
 				for (auto i = 0; i < n_active_paths; i++)
 				{
-					if (i >= insert_l.back().idx)
+
+					if (i >= insert_l.back().idx && insert_l.back().ori)
 						break;
 
 					const auto path  = path_idx[i];
@@ -631,18 +631,18 @@ void Decoder_polar_SCL_ecfast_sys<B,R,API_polar>
 						bit_flips[2 * path +1] = 1;
 					}
 
-					if (! insert_sort(sat_m<R>(metrics[path] + pen0), i, 4 * path +1))
+					if (! insert_sort(sat_m<R>(metrics[path] + pen0), i, 4 * path +1, false))
 						continue;
-					if (! insert_sort(sat_m<R>(metrics[path] + pen1), i, 4 * path +2))
+					if (! insert_sort(sat_m<R>(metrics[path] + pen1), i, 4 * path +2, false))
 						continue;
-					insert_sort(sat_m<R>(metrics[path] + pen0 + pen1), i, 4 * path +3);
+					insert_sort(sat_m<R>(metrics[path] + pen0 + pen1), i, 4 * path +3, false);
 				}
 			}
 			else
 			{
 				for (auto i = 0; i < n_active_paths; i++)
 				{
-					if (i >= insert_l.back().idx)
+					if (i >= insert_l.back().idx && insert_l.back().ori)
 						break;
 
 					const auto path  = path_idx[i];
@@ -664,14 +664,13 @@ void Decoder_polar_SCL_ecfast_sys<B,R,API_polar>
 					const auto pen1 = sat_m<R>(std::abs(l[array][off_l + bit_flips[2 * path +1]]));
 
 
-					if (! insert_sort(sat_m<R>(metrics[path] + pen0), i, 4 * path +1))
+					if (! insert_sort(sat_m<R>(metrics[path] + pen0), i, 4 * path +1, false))
 						continue;
-					if (! insert_sort(sat_m<R>(metrics[path] + pen1), i, 4 * path +2))
+					if (! insert_sort(sat_m<R>(metrics[path] + pen1), i, 4 * path +2, false))
 						continue;
-					insert_sort(sat_m<R>(metrics[path] + pen0 + pen1), i, 4 * path +3);
+					insert_sort(sat_m<R>(metrics[path] + pen0 + pen1), i, 4 * path +3, false);
 				}
 			}
-
 
 			// count the number of duplications per path
 			for (typename std::list<Node>::iterator i = insert_l.begin(); i != insert_l.end(); ++i)
@@ -727,9 +726,6 @@ void Decoder_polar_SCL_ecfast_sys<B,R,API_polar>
 				{
 					const auto path  = paths[i];
 					const auto array = path_2_array[path][r_d];
-
-
-
 
 					for (auto j = 0; j < n_elmts; j++)
 					{
