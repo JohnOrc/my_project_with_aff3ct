@@ -600,16 +600,12 @@ void Decoder_polar_SCL_oldfast_sys<B,R,API_polar>
 				const auto path  = paths[i];
 				const auto array = path_2_array[path][r_d];
 
-
-
-
 				for (auto j = 0; j < n_elmts; j++)
 				{
 					l_tmp[j] = std::abs(l[array][off_l + j]);
 				}
 
 				sorter.partial_sort_destructive(l_tmp.data(), best_idx, n_elmts, 2);
-
 
 				bit_flips[2 * path +0] = best_idx[0];
 				bit_flips[2 * path +1] = best_idx[1];
