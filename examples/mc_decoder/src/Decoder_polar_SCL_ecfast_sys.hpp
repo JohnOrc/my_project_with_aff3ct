@@ -34,6 +34,7 @@ protected:
 	            std ::vector<int >    dup_count;      // number of duplications of a path, at updating time
 	            std ::vector<int >    bit_flips;      // index of the bits to be flipped
 	            std ::vector<bool>    is_even;        // used to store parity of a spc node
+				std ::vector<bool>	  swap_pm;			  // used to label pm sort
 
 	int                               best_path;
 	int                               n_active_paths;
