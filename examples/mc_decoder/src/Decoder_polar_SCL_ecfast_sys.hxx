@@ -1024,10 +1024,19 @@ void Decoder_polar_SCL_ecfast_sys<B,R,API_polar>
 		const auto pen2 = sat_m<R>(std::abs(l[array][off_l + bit_flips[4 * path +2]]));
 		const auto pen3 = sat_m<R>(std::abs(l[array][off_l + bit_flips[4 * path +3]]));
 
+		// DLOG(INFO) << "**pen**";
+		// for (auto i = 0; i < 4; i++)
+		// 	DLOG(INFO) << sat_m<R>(std::abs(l[array][off_l + bit_flips[4 * path +i]]));
+		// DLOG(INFO) << "**pen**";
+
 		metrics_vec[2][n_cands * path +0] =          sat_m<R>(metrics[path] + (!is_even[path] ? pen0 : 0));
 		metrics_vec[2][n_cands * path +1] = sat_m<R>(sat_m<R>(metrics[path] + ( is_even[path] ? pen0 : 0)) + pen1);
 		metrics_vec[2][n_cands * path +2] = sat_m<R>(sat_m<R>(metrics[path] + ( is_even[path] ? pen0 : 0)) + pen2);
 		metrics_vec[2][n_cands * path +3] = sat_m<R>(sat_m<R>(metrics[path] + ( is_even[path] ? pen0 : 0)) + pen3);
+
+		// for (auto i = 0; i < 4; i++)
+		// 	DLOG(INFO) << metrics_vec[2][n_cands * path +i];
+		// DLOG(INFO) << "*****";
 		
 		swap_pm[path] = false;
 
@@ -1041,7 +1050,6 @@ void Decoder_polar_SCL_ecfast_sys<B,R,API_polar>
 				metrics_vec[2][n_cands * path +3] = temp;
 				swap_pm[path] = true; 
 			}
-			else
 			metrics_vec[2][n_cands * path +5] = sat_m<R>(sat_m<R>(metrics_vec[2][n_cands * path +0] + pen1) + pen3);
 			metrics_vec[2][n_cands * path +6] = sat_m<R>(sat_m<R>(metrics_vec[2][n_cands * path +0] + pen2) + pen3);
 			metrics_vec[2][n_cands * path +7] = sat_m<R>(sat_m<R>(metrics_vec[2][n_cands * path +1] + pen2) + pen3);
@@ -1053,12 +1061,23 @@ void Decoder_polar_SCL_ecfast_sys<B,R,API_polar>
 		}
 	}
 	for (auto i = n_active_paths; i < L; i++)
+	{
+		swap_pm[i] = false;
 		for (auto j = 0; j < n_cands; j++)
 			metrics_vec[2][n_cands * paths[i] +j] = std::numeric_limits<R>::max();
+	}
+		
 
 	// L first of the lists are the L best paths
-	const auto n_list = (n_active_paths * n_cands >= L) ? L : n_active_paths * n_cands;
+	const auto n_list = (n_active_paths * (n_cands -1) >= L) ? L : n_active_paths * (n_cands -1);
 	sort_chaseii(metrics_vec[2].data(), best_idx, L, n_list, n_cands);
+
+	DLOG(INFO) << "******";
+	for (auto i = 0; i < n_cands * L; i++)
+	{
+		DLOG(INFO) << metrics_vec[2][i];
+	}
+	DLOG(INFO) << "******";
 
 	// count the number of duplications per path
 	for (auto i = 0; i < n_list; i++)
@@ -1078,9 +1097,11 @@ void Decoder_polar_SCL_ecfast_sys<B,R,API_polar>
 		const auto new_path = (dup_count[path] > 1) ? duplicate_tree(path, off_l, off_s, n_elmts) : path;
 		flip_bits_spc(path, new_path, dup, off_s, n_elmts);
 		metrics[new_path] = metrics_vec[2][best_idx[i]];
+		DLOG(INFO) << metrics[new_path];
 
 		dup_count[path]--;
 	}
+	DLOG(INFO) << "--------";
 }
 
 template <typename B, typename R, class API_polar>
@@ -1131,7 +1152,6 @@ void Decoder_polar_SCL_ecfast_sys<B,R,API_polar>
 				metrics_vec[2][n_cands * path +3] = temp;
 				swap_pm[path] = true; 
 			}
-			else
 			metrics_vec[2][n_cands * path +5] = sat_m<R>(sat_m<R>(metrics_vec[2][n_cands * path +0] + pen1) + pen3);
 			metrics_vec[2][n_cands * path +6] = sat_m<R>(sat_m<R>(metrics_vec[2][n_cands * path +0] + pen2) + pen3);
 			metrics_vec[2][n_cands * path +7] = sat_m<R>(sat_m<R>(metrics_vec[2][n_cands * path +1] + pen2) + pen3);
@@ -1144,11 +1164,14 @@ void Decoder_polar_SCL_ecfast_sys<B,R,API_polar>
 	}
 
 	for (auto i = n_active_paths; i < L; i++)
+	{
+		swap_pm[i] = false;
 		for (auto j = 0; j < n_cands; j++)
 			metrics_vec[2][n_cands * paths[i] +j] = std::numeric_limits<R>::max();
+	}
 
 	// L first of the lists are the L best paths
-	const auto n_list = (n_active_paths * n_cands >= L) ? L : n_active_paths * n_cands;
+	const auto n_list = (n_active_paths * (n_cands -1) >= L) ? L : n_active_paths * (n_cands -1);
 	sort_chaseii(metrics_vec[2].data(), best_idx, L, n_list, n_cands);
 
 	// count the number of duplications per path

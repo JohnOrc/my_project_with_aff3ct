@@ -4,7 +4,7 @@ if("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" LESS 2.5)
    message(FATAL_ERROR "CMake >= 2.6.0 required")
 endif()
 cmake_policy(PUSH)
-cmake_policy(VERSION 2.6...3.18)
+cmake_policy(VERSION 2.6...3.19)
 #----------------------------------------------------------------
 # Generated CMake target import file.
 #----------------------------------------------------------------
@@ -46,7 +46,7 @@ add_library(aff3ct::aff3ct-shared-lib SHARED IMPORTED)
 
 set_target_properties(aff3ct::aff3ct-shared-lib PROPERTIES
   INTERFACE_COMPILE_DEFINITIONS "AFF3CT_POLAR_BIT_PACKING;AFF3CT_COLORS;AFF3CT_BACKTRACE;AFF3CT_EXT_STRINGS;AFF3CT_MULTI_PREC;MIPP_ENABLE_BACKTRACE"
-  INTERFACE_INCLUDE_DIRECTORIES "/home/laptop/Documents/code/my_project_with_aff3ct/lib/aff3ct/include/;/home/laptop/Documents/code/my_project_with_aff3ct/lib/aff3ct/lib/cli/src/;/home/laptop/Documents/code/my_project_with_aff3ct/lib/aff3ct/lib/MIPP/src/;/home/laptop/Documents/code/my_project_with_aff3ct/lib/aff3ct/lib/rang/include/;/home/laptop/Documents/code/my_project_with_aff3ct/lib/aff3ct/lib/date/include/date/"
+  INTERFACE_INCLUDE_DIRECTORIES "/home/lab-yl/Documents/code/my_project_with_aff3ct/lib/aff3ct/include/;/home/lab-yl/Documents/code/my_project_with_aff3ct/lib/aff3ct/lib/cli/src/;/home/lab-yl/Documents/code/my_project_with_aff3ct/lib/aff3ct/lib/MIPP/src/;/home/lab-yl/Documents/code/my_project_with_aff3ct/lib/aff3ct/lib/rang/include/;/home/lab-yl/Documents/code/my_project_with_aff3ct/lib/aff3ct/lib/date/include/date/"
   INTERFACE_LINK_LIBRARIES "Threads::Threads"
 )
 
@@ -55,22 +55,22 @@ add_library(aff3ct::aff3ct-static-lib STATIC IMPORTED)
 
 set_target_properties(aff3ct::aff3ct-static-lib PROPERTIES
   INTERFACE_COMPILE_DEFINITIONS "AFF3CT_POLAR_BIT_PACKING;AFF3CT_COLORS;AFF3CT_BACKTRACE;AFF3CT_EXT_STRINGS;AFF3CT_MULTI_PREC;MIPP_ENABLE_BACKTRACE"
-  INTERFACE_INCLUDE_DIRECTORIES "/home/laptop/Documents/code/my_project_with_aff3ct/lib/aff3ct/include/;/home/laptop/Documents/code/my_project_with_aff3ct/lib/aff3ct/lib/cli/src/;/home/laptop/Documents/code/my_project_with_aff3ct/lib/aff3ct/lib/MIPP/src/;/home/laptop/Documents/code/my_project_with_aff3ct/lib/aff3ct/lib/rang/include/;/home/laptop/Documents/code/my_project_with_aff3ct/lib/aff3ct/lib/date/include/date/"
+  INTERFACE_INCLUDE_DIRECTORIES "/home/lab-yl/Documents/code/my_project_with_aff3ct/lib/aff3ct/include/;/home/lab-yl/Documents/code/my_project_with_aff3ct/lib/aff3ct/lib/cli/src/;/home/lab-yl/Documents/code/my_project_with_aff3ct/lib/aff3ct/lib/MIPP/src/;/home/lab-yl/Documents/code/my_project_with_aff3ct/lib/aff3ct/lib/rang/include/;/home/lab-yl/Documents/code/my_project_with_aff3ct/lib/aff3ct/lib/date/include/date/"
   INTERFACE_LINK_LIBRARIES "Threads::Threads"
 )
 
-# Import target "aff3ct::aff3ct-shared-lib" for configuration "Release"
-set_property(TARGET aff3ct::aff3ct-shared-lib APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+# Import target "aff3ct::aff3ct-shared-lib" for configuration "Debug"
+set_property(TARGET aff3ct::aff3ct-shared-lib APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(aff3ct::aff3ct-shared-lib PROPERTIES
-  IMPORTED_LOCATION_RELEASE "/home/laptop/Documents/code/my_project_with_aff3ct/lib/aff3ct/build/lib/libaff3ct-2.3.5-490-g555c239.so"
-  IMPORTED_SONAME_RELEASE "libaff3ct-2.3.5-490-g555c239.so"
+  IMPORTED_LOCATION_DEBUG "/home/lab-yl/Documents/code/my_project_with_aff3ct/lib/aff3ct/build/lib/libaff3ct-2.3.5-490-g555c239.so"
+  IMPORTED_SONAME_DEBUG "libaff3ct-2.3.5-490-g555c239.so"
   )
 
-# Import target "aff3ct::aff3ct-static-lib" for configuration "Release"
-set_property(TARGET aff3ct::aff3ct-static-lib APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+# Import target "aff3ct::aff3ct-static-lib" for configuration "Debug"
+set_property(TARGET aff3ct::aff3ct-static-lib APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(aff3ct::aff3ct-static-lib PROPERTIES
-  IMPORTED_LINK_INTERFACE_LANGUAGES_RELEASE "CXX"
-  IMPORTED_LOCATION_RELEASE "/home/laptop/Documents/code/my_project_with_aff3ct/lib/aff3ct/build/lib/libaff3ct-2.3.5-490-g555c239.a"
+  IMPORTED_LINK_INTERFACE_LANGUAGES_DEBUG "CXX"
+  IMPORTED_LOCATION_DEBUG "/home/lab-yl/Documents/code/my_project_with_aff3ct/lib/aff3ct/build/lib/libaff3ct-2.3.5-490-g555c239.a"
   )
 
 # This file does not depend on other imported targets which have
